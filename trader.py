@@ -4,7 +4,6 @@ from pandas_datareader import data as data_reader
 from trader_agents import ImprovedTrader, SimpleTrader
 
 import numpy as np
-# TODO: add device as well
 
 def sigmoid(x):
   return 1 / (1 + np.exp(-x))
@@ -83,9 +82,11 @@ for episode in range(n_episodes):
         if general_step % sync_steps == 0:
             trader.sync_target()
 
+        if general_step % trader.replay_size == 0:
+            trader.batch_train(batch_size)
+
     print("#" * 20)
     print(f"Episode {episode} ended with a total profit = {total_profit}")
     print("#" * 20)
 
-    if len(trader.memory) > trader.replay_size:
-        trader.batch_train(batch_size)
+    

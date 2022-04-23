@@ -7,6 +7,9 @@ import torch.nn as nn
 import numpy as np
 import os
 
+import torch
+device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
 class EpsilonScheduller():
     def __init__(self, epsilon=1.0, epsilon_final=0.01, epsilon_decay=0.995):
         self.epsilon = epsilon
@@ -29,7 +32,7 @@ class SimpleTrader():
         self.memory = []
         self.portfolio = []
         
-        self.model = Estimator(state_size, action_space)
+        self.model = Estimator(state_size, action_space).to(device)
         self.optimizer = AdamW(self.model.parameters())
         self.loss_fn = nn.MSELoss()
         
@@ -37,12 +40,12 @@ class SimpleTrader():
         self.epsilon_scheduller = EpsilonScheduller()
 
     def model_predict_proba(self, state):
-        state = torch.tensor(state).float()
+        state = torch.tensor(state).float().to(device)
 
         self.model.eval()
         with torch.no_grad():
             logits = self.model(state)
-        return logits[0].numpy()
+        return logits[0].cpu().numpy()
 
     def model_predict(self, state):
         logits = self.model_predict_proba(state)
@@ -55,8 +58,8 @@ class SimpleTrader():
         }, model_path)
 
     def training_step(self, state, target):
-        state = torch.tensor(state).float()
-        target = torch.tensor(target).float()
+        state = torch.tensor(state).float().to(device)
+        target = torch.tensor(target).float().to(device)
 
         self.model.train()
         self.optimizer.zero_grad()
@@ -97,7 +100,7 @@ class ImprovedTrader(SimpleTrader):
     def __init__(self, state_size, action_space=3):
         super().__init__(state_size, action_space)
         self.replay_size = 10000
-        self.target_model = Estimator(state_size, action_space)
+        self.target_model = Estimator(state_size, action_space).to(device)
         self.target_model.eval()
 
     def sync_target(self):
@@ -106,11 +109,11 @@ class ImprovedTrader(SimpleTrader):
 
 
     def training_step(self, states, actions, rewards, next_states, dones):
-        states = torch.tensor(states).float()
-        next_states = torch.tensor(next_states).float()
-        actions = torch.tensor(actions)
-        rewards = torch.tensor(rewards)
-        done_mask = torch.ByteTensor(dones)
+        states = torch.tensor(states).float().to(device)
+        next_states = torch.tensor(next_states).float().to(device)
+        actions = torch.tensor(actions).to(device)
+        rewards = torch.tensor(rewards).to(device)
+        done_mask = torch.ByteTensor(dones).to(device)
 
         self.model.train()
         self.optimizer.zero_grad()
