@@ -1,17 +1,8 @@
+from common import *
 from models import Estimator
-from torch.optim import AdamW
-
-import pdb
-import torch
-import torch.nn as nn
-import numpy as np
-import os
-
-import torch
-device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 class EpsilonScheduller():
-    def __init__(self, epsilon=1.0, epsilon_final=0.01, epsilon_decay=0.995):
+    def __init__(self, epsilon = 1.0, epsilon_final = 0.01, epsilon_decay = 0.995):
         self.epsilon = epsilon
         self.epsilon_final = epsilon_final
         self.epsilon_decay = epsilon_decay
@@ -24,9 +15,8 @@ class EpsilonScheduller():
             self.epsilon *= self.epsilon_decay
 
 
-
 class SimpleTrader():
-    def __init__(self, state_size, action_space=3):
+    def __init__(self, state_size, action_space = 3):
         self.state_size = state_size
         self.action_space = action_space
         self.memory = []
@@ -51,8 +41,9 @@ class SimpleTrader():
         logits = self.model_predict_proba(state)
         return np.argmax(logits)
 
-    def save_model(self, exp_dir='logs/simple_trader'):
-        model_path = os.path.join(exp_dir, 'best.pth')
+    def save_model(self, model_name = "best.pth", exp_dir = 'models/'):
+        if os.path.isdir(exp_dir) == False: os.mkdir(exp_dir, 0o777)
+        model_path = os.path.join(exp_dir, model_name)
         torch.save({
             "model": self.model.state_dict()
         }, model_path)
@@ -74,7 +65,7 @@ class SimpleTrader():
     def trade(self, state):
         rand = np.random.uniform(0, 1)
         if rand <= self.epsilon_scheduller.get():
-            return np.random.randint(low=0, high=self.action_space)
+            return np.random.randint(low = 0, high = self.action_space)
 
         action = self.model_predict(state)
         return action
@@ -99,7 +90,7 @@ class SimpleTrader():
 class ImprovedTrader(SimpleTrader):
     def __init__(self, state_size, action_space=3):
         super().__init__(state_size, action_space)
-        self.replay_size = 10000
+        self.replay_size = 2 # 10000
         self.target_model = Estimator(state_size, action_space).to(device)
         self.target_model.eval()
 
@@ -134,12 +125,12 @@ class ImprovedTrader(SimpleTrader):
 
 
     def batch_train(self, batch_size):
+        # print("Batch Train")
         replay_buffer = self.memory[-self.replay_size:]
         buffer_size = min(self.replay_size, len(replay_buffer))
-
+        # print("Buffer Size: ", buffer_size)
         for i in range(0, buffer_size, batch_size):
             batch = replay_buffer[i: i + batch_size]
-
             states, actions, rewards, next_states, dones = list(zip(*batch))
             states = np.array(states).squeeze(1)
             next_states = np.array(next_states).squeeze(1)
