@@ -90,7 +90,7 @@ class SimpleTrader():
 class ImprovedTrader(SimpleTrader):
     def __init__(self, state_size, action_space=3):
         super().__init__(state_size, action_space)
-        self.replay_size = 2 # 10000
+        self.replay_size = 10000
         self.target_model = Estimator(state_size, action_space).to(device)
         self.target_model.eval()
 
