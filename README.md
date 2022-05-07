@@ -27,7 +27,7 @@ Instead of predicting real numbers for our target we instead want to predict one
 8. Prioritized Experience Replay (already have this) - experiments and results for validation and test
 9. Double DQN  - experiments and results for validation and test
 10. Dueling Double DQN Architectures - experiments and results for validation and test
-11. Searching for other features as input ([stockstats](https://pypi.org/project/stockstats/))
+11. Searching for other features as input ([stockstats](https://pypi.org/project/stockstats/)) &#8594; **Assignee**: Dobre Bogdan, **Status**: In progress
 12. Improved Estimator Networks, Convolutional 1d vs Fully Connected, maybe LSTM or transformer encoder or transofrmer encoder decoder
 
 # Optional Tasks
