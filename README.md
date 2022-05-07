@@ -17,7 +17,7 @@ This is regression problem - let's say we have a window_size = 5 so we use 5 sta
 Instead of predicting real numbers for our target we instead want to predict one of our 3 actions.
 
 # High Priority Tasks
-1. Split train, validation, test &#8594; **Assignee**: Adrian Iordache, **Status**: In progress
+1. ~~Split train, validation, test and integration~~ &#8594; **Assignee**: Adrian Iordache, **Status**: Done
 2. Refactoring trader_agents.py for hyperparameter optimization (LR, loss_fn, optimizer) &#8594; **Assignee**: Adrian Iordache, **Status**: In progress
 3. Monitoring and ploting results (profit, rewards, loss) &#8594; **Assignee**: Adrian Iordache, **Status**: In progress
 4. Another evaluation metrics (backtesting, [pyfolio](https://github.com/quantopian/pyfolio), [FinRL](https://github.com/AI4Finance-Foundation/FinRL/blob/master/tutorials/1-Introduction/FinRL_StockTrading_Fundamental.ipynb))
