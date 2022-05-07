@@ -3,11 +3,18 @@ import pdb
 import torch
 import random
 import numpy as np
+import pandas as pd
 import torch.nn as nn
+import matplotlib.pyplot as plt
 
 from tqdm import trange
 from torch.optim import AdamW
+from IPython.display import display
 from pandas_datareader import data as datareader
+from matplotlib.collections import LineCollection
+from matplotlib.colors import ListedColormap, BoundaryNorm
+
+PATH_TO_DATA = 'data/AAPL_stocks_splits.csv'
 
 def seed_everything(seed = 42):
     random.seed(seed)
