@@ -57,7 +57,7 @@ class Agent(ABC):
         pass
 
 class DQN(Agent):
-    def __init__(
+    def __init__(self,
         model             : torch.nn.Module,
         state_size        : int, 
         action_space      : int, 
@@ -67,7 +67,7 @@ class DQN(Agent):
     ):
         super().__init__(model, state_size, action_space, scheduler, optimizer, loss_fn)
 
-    def batch_train(self):
+    def training_step(self, state, target):
         state = torch.tensor(state).float().to(DEVICE)
         target = torch.tensor(target).float().to(DEVICE)
 
@@ -80,7 +80,7 @@ class DQN(Agent):
         loss.backward()
         self.optimizer.step()
         
-    def training_step(self):
+    def batch_train(self, batch_size):
         batch = []
         for i in range(len(self.memory) - batch_size + 1, len(self.memory)):
             batch.append(self.memory[i])
