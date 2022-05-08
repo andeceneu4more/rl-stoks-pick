@@ -1,11 +1,14 @@
 from common import *
-from trader_agents import ImprovedTrader, SimpleTrader
+from models import BaseEstimator
+from agents import DQN, DQNFixedTargets
 
 CFG = {
-    "n_episodes"  :  1000,
-    "window_size" :  10,
-    "batch_size"  :  32,
-    "sync_steps"  :  1000
+    "action_space"  : 3,
+    "learning_rate" : 0.001,
+    "n_episodes"    : 1000,
+    "window_size"   : 10,
+    "batch_size"    : 32,
+    "sync_steps"    : 1000
 }
 
 def state_creator(data, timestep, window_size):
@@ -95,9 +98,23 @@ def main():
     train_data = data[data['Split'] == 0]["Adj_Close"].tolist()
     valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
     test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
+    
+    model        = BaseEstimator(CFG['window_size'], CFG['action_space']).to(DEVICE)
+    target_model = BaseEstimator(CFG['window_size'], CFG['action_space']).to(DEVICE)
+    optimizer    = AdamW(model.parameters(), lr = CFG['learning_rate'])
+    loss_fn      = nn.MSELoss()    
+    scheduler    = EpsilonScheduler()
 
-    # TODO: put this in a function and make an inference for another set of yahoo stocks
-    trader = ImprovedTrader(state_size = CFG['window_size'])
+
+    trader = DQNFixedTargets(
+        model        = model,
+        target_model = target_model,
+        state_size   = CFG['window_size'],
+        action_space = CFG['action_space'],
+        scheduler    = scheduler,
+        optimizer    = optimizer,
+        loss_fn      = loss_fn,
+    )
 
     global_step = 0
     best_mean_reward = -1

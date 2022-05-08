@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-class Estimator(nn.Module):
+class BaseEstimator(nn.Module):
     def __init__(self, state_size, action_space):
         super().__init__()
         self.state_size = state_size
