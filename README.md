@@ -20,15 +20,15 @@ Instead of predicting real numbers for our target we instead want to predict one
 1. ~~Split train, validation, test and integration~~ &#8594; **Assignee**: Adrian Iordache, **Status**: Done
 2. Refactoring trader_agents.py for hyperparameter optimization (LR, loss_fn, optimizer) &#8594; **Assignee**: Adrian Iordache, **Status**: In progress
 3. Monitoring and ploting results (profit, rewards, loss) &#8594; **Assignee**: Adrian Iordache, **Status**: In progress
-4. Another evaluation metrics (backtesting, [pyfolio](https://github.com/quantopian/pyfolio), [FinRL](https://github.com/AI4Finance-Foundation/FinRL/blob/master/tutorials/1-Introduction/FinRL_StockTrading_Fundamental.ipynb)) &#8594; **Assignee**: Gîdea Andrei, **Status**: In progress
-5. OpenAI Gym Integration ?
-6. Vanilla DQN - experiments and results for validation and test
-7. DQN with fixed targets (target network)(already have this) - experiments and results for validation and test
-8. Prioritized Experience Replay (already have this) - experiments and results for validation and test
-9. Double DQN  - experiments and results for validation and test
-10. Dueling Double DQN Architectures - experiments and results for validation and test
-11. Searching for other features as input ([stockstats](https://pypi.org/project/stockstats/)) &#8594; **Assignee**: Dobre Bogdan, **Status**: In progress
-12. Improved Estimator Networks, Convolutional 1d vs Fully Connected, maybe LSTM or transformer encoder or transofrmer encoder decoder &#8594; **Assignee**: Gîdea Andrei, **Status**: In progress
+4. Prioritized Experience Replay (already have this, integration for vanilla) - experiments and results for validation and test &#8594; **Assignee**: Manea Andrei, **Status**: In progress 
+5. Another evaluation metrics (backtesting, [pyfolio](https://github.com/quantopian/pyfolio), [FinRL](https://github.com/AI4Finance-Foundation/FinRL/blob/master/tutorials/1-Introduction/FinRL_StockTrading_Fundamental.ipynb)) &#8594; **Assignee**: Sichitiu Marian, Gîdea Andrei, **Status**: In progress
+6. OpenAI Gym Integration ? &#8594; **Assignee**: Manea Andrei, **Status**: In progress
+7. Vanilla DQN - experiments and results for validation and test &#8594; **Assignee**: Manea Andrei, Adrian Iordache, **Status**: Waiting
+8. DQN with fixed targets (target network)(already have this) - experiments and results for validation and test  &#8594; **Assignee**:  Manea Andrei, Adrian Iordache, **Status**: Waiting
+9. Double DQN  - experiments and results for validation and test  &#8594; **Assignee**: Manea Andrei, **Status**: In progress 
+10. Dueling Double DQN Architectures - experiments and results for validation and test &#8594; **Assignee**: Manea Andrei, **Status**: In progress 
+11. Searching for other features as input ([stockstats](https://pypi.org/project/stockstats/)) &#8594; **Assignee**: Dobre Bogdan, Sichitiu Marian, Gîdea Andrei, **Status**: In progress
+12. Improved Estimator Networks, Convolutional 1d vs Fully Connected, maybe LSTM or transformer encoder or transofrmer encoder decoder &#8594; **Assignee**: Sichitiu Marian, Gîdea Andrei, **Status**: In progress
 
 # Optional Tasks
 1. Throw away all episodes with a reward below the boundary
