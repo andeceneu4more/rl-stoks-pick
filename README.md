@@ -18,7 +18,7 @@ Instead of predicting real numbers for our target we instead want to predict one
 
 # High Priority Tasks
 1. ~~Split train, validation, test and integration~~ &#8594; **Assignee**: Adrian Iordache, **Status**: Done
-2. Refactoring trader_agents.py for hyperparameter optimization (LR, loss_fn, optimizer) &#8594; **Assignee**: Adrian Iordache, **Status**: In progress
+2. ~~Refactoring trader_agents.py for hyperparameter optimization (LR, loss_fn, optimizer)~~ &#8594; **Assignee**: Adrian Iordache, **Status**: Done
 3. Monitoring and ploting results (profit, rewards, loss) &#8594; **Assignee**: Adrian Iordache, **Status**: In progress
 4. Prioritized Experience Replay (already have this, integration for vanilla) - experiments and results for validation and test &#8594; **Assignee**: Manea Andrei, **Status**: In progress 
 5. Another evaluation metrics (backtesting, [pyfolio](https://github.com/quantopian/pyfolio), [FinRL](https://github.com/AI4Finance-Foundation/FinRL/blob/master/tutorials/1-Introduction/FinRL_StockTrading_Fundamental.ipynb)) &#8594; **Assignee**: Sichitiu Marian, Gîdea Andrei, **Status**: In progress
