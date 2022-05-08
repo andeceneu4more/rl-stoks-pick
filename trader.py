@@ -1,17 +1,31 @@
 from common import *
-from models import BaseEstimator
-from agents import DQN, DQNFixedTargets
+from getters import *
 
 CFG = {
-    "action_space"  : 3,
+    "trader"        : "DQNFixedTargets",
+    "estimator"     : "BaseEstimator",
+    
+    "optimizer"     : "AdamW",
     "learning_rate" : 0.001,
-    "n_episodes"    : 1000,
-    "window_size"   : 10,
+    
+    "criterion"     : "MSELoss",
+
+    "eps_scheduler" : "EpsilonScheduler",
+    "epsilon"       : 1,
+    "epsilon_final" : 0.01,
+    "epsilon_decay" : 0.995,
+
+    "action_space"  : 3,
+    "window_size"   : 10,                       # the same thing as state_size
     "batch_size"    : 32,
-    "sync_steps"    : 1000
+    "n_episodes"    : 1000,
+
+    "replay_size"   : 10000,
+    "sync_steps"    : 1000,                     # only for DQN with fixed targets
 }
 
 def state_creator(data, timestep, window_size):
+    """ Generating Features for the estimators """
     starting_id = timestep - window_size + 1
 
     if starting_id >= 0:
@@ -60,11 +74,17 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
         train_rewards.append(reward)
 
         global_step += 1
-        if global_step % sync_target == 0:
-            trader.sync_target()
+        # Training the trader based on the specific type
+        # This should be updated when the replay size will be usable for all Agents
+        if CFG['trader'] == "DQN":
+            if len(trader.memory) > batch_size:
+                trader.batch_train(batch_size)
 
-        if global_step % trader.replay_size == 0:
-            trader.batch_train(batch_size)
+        elif CFG['trader'] == "DQNFixedTargets":
+            if global_step % sync_target == 0:
+                trader.sync_target()
+            if global_step % trader.replay_size == 0:
+                trader.batch_train(batch_size)
 
     return trader, np.mean(train_rewards), train_profit, global_step
 
@@ -99,22 +119,34 @@ def main():
     valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
     test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
     
-    model        = BaseEstimator(CFG['window_size'], CFG['action_space']).to(DEVICE)
-    target_model = BaseEstimator(CFG['window_size'], CFG['action_space']).to(DEVICE)
-    optimizer    = AdamW(model.parameters(), lr = CFG['learning_rate'])
-    loss_fn      = nn.MSELoss()    
-    scheduler    = EpsilonScheduler()
+    # All getter for the config file can be found in getters.py
+    model        = get_estimator(CFG)
+    target_model = get_estimator(CFG) # the target model should be the same as the estimator
+    optimizer    = get_optimizer(model.parameters(), CFG)
+    loss_fn      = get_criterion(CFG) 
+    scheduler    = get_scheduler(CFG)
 
-
-    trader = DQNFixedTargets(
-        model        = model,
-        target_model = target_model,
-        state_size   = CFG['window_size'],
-        action_space = CFG['action_space'],
-        scheduler    = scheduler,
-        optimizer    = optimizer,
-        loss_fn      = loss_fn,
-    )
+    trader = None
+    if CFG["trader"] == "DQN":
+        trader = DQN(
+            model        = model,
+            state_size   = CFG['window_size'],
+            action_space = CFG['action_space'],
+            scheduler    = scheduler,
+            optimizer    = optimizer,
+            loss_fn      = loss_fn,
+        )
+    elif CFG["trader"] == "DQNFixedTargets":
+        trader = DQNFixedTargets(
+            model        = model,
+            target_model = target_model,
+            state_size   = CFG['window_size'],
+            action_space = CFG['action_space'],
+            scheduler    = scheduler,
+            optimizer    = optimizer,
+            loss_fn      = loss_fn,
+            replay_size  = CFG['replay_size']
+        )
 
     global_step = 0
     best_mean_reward = -1

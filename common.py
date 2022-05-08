@@ -36,7 +36,7 @@ seed_everything(seed = SEED)
 
 class EpsilonScheduler():
     def __init__(self, epsilon = 1.0, epsilon_final = 0.01, epsilon_decay = 0.995):
-        self.epsilon = epsilon
+        self.epsilon       = epsilon
         self.epsilon_final = epsilon_final
         self.epsilon_decay = epsilon_decay
 
