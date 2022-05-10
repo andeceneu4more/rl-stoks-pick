@@ -1,0 +1,2 @@
+id,trader,estimator,optimizer,learning_rate,criterion,eps_scheduler,epsilon,epsilon_final,epsilon_decay,action_space,window_size,batch_size,n_episodes,replay_size,sync_steps,train_profit,valid_profit,train_reward,valid_reward,observation
+0,DQNFixedTargets,BaseEstimator,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,-10.971,157.025,0.117,1.109,Baseline

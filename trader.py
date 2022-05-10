@@ -1,7 +1,17 @@
 from common import *
 from getters import *
+plt.style.use(["ggplot"])
+
+STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
+SAVE_TO_LOG   = True # change this to False if you don't want to save the experiment
+
+GLOBAL_LOGGER = GlobalLogger(
+    path_to_global_logger = f'logs/stage-{STAGE}/global_logger.csv',
+    save_to_log = SAVE_TO_LOG
+)
 
 CFG = {
+    "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNFixedTargets",
     "estimator"     : "BaseEstimator",
     
@@ -23,6 +33,17 @@ CFG = {
     "replay_size"   : 10000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
 }
+
+# This should be updated after the we find the financial metrics
+OUTPUTS = {
+    "train_profit": "NA",
+    "valid_profit": "NA",
+
+    "train_reward": "NA",
+    "valid_reward": "NA",
+    "observation" : "Baseline" # This field should be used as a comment in GloablLogger.csv
+}
+
 
 def state_creator(data, timestep, window_size):
     """ Generating Features for the estimators """
@@ -113,8 +134,20 @@ def valid_fn(trader, valid_data, window_size):
     return np.mean(valid_rewards), valid_profit
 
 def main():
-    data = pd.read_csv(PATH_TO_DATA)
+    PATH_TO_MODEL = f"models/stage-{STAGE}/model-{CFG['id']}"
+    if SAVE_TO_LOG:
+        if not os.path.isdir(PATH_TO_MODEL): os.makedirs(PATH_TO_MODEL, 0o777)
+        logger = Logger(
+            path_to_logger = os.path.join(PATH_TO_MODEL, 'model_{}.log'.format(CFG['id'])), 
+            distributed    = False
+        )
+    else:
+        logger = Logger(distributed = False)
 
+    logger.print("Config File")
+    logger.print(CFG)
+
+    data       = pd.read_csv(PATH_TO_DATA)
     train_data = data[data['Split'] == 0]["Adj_Close"].tolist()
     valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
     test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
@@ -149,10 +182,12 @@ def main():
         )
 
     global_step = 0
-    best_mean_reward = -1
+    best_mean_reward = 0
+    train_profits, valid_profits = [], [] 
+    train_rewards, valid_rewards = [], []
     # Standard "epochs" iteration
     for episode in range(CFG['n_episodes']):
-        print(40 * "="+ f" Episode: {episode + 1}/{CFG['n_episodes']} " + 40 * "=")
+        logger.print(40 * "="+ f" Episode: {episode + 1}/{CFG['n_episodes']} " + 40 * "=")
 
         # One train iteration over the training set
         trader, train_reward, train_profit, global_step = train_fn(
@@ -170,12 +205,47 @@ def main():
         # Saving the best model based on the reward on the validation set
         if best_mean_reward < valid_reward:
             best_mean_reward = valid_reward
-            trader.save_model(
-                model_name = f"model_episode_{episode}_profit_{RD(valid_profit)}_reward_{RD(valid_profit)}.pth"
-            )
+            if SAVE_TO_LOG:
+                trader.save_model(
+                    model_path = os.path.join(
+                        PATH_TO_MODEL, f"model_{CFG['id']}_episode_{episode}_profit_{RD(valid_profit)}_reward_{RD(valid_reward)}.pth")
+                )
 
-        print("=" * 40 + f" Episode: {episode + 1}, Train Profit: {RD(train_profit)}, Train Reward: {RD(train_reward)}")
-        print("=" * 40 + f" Episode: {episode + 1}, Valid Profit: {RD(valid_profit)}, Valid Reward: {RD(valid_profit)}")
+        train_profits.append(train_profit)
+        valid_profits.append(valid_profit)
+        train_rewards.append(train_reward)
+        valid_rewards.append(valid_reward)
+
+        logger.print("=" * 40 + f" Episode: {episode + 1}, Train Profit: {RD(train_profit)}, Train Reward: {RD(train_reward)}")
+        logger.print("=" * 40 + f" Episode: {episode + 1}, Valid Profit: {RD(valid_profit)}, Valid Reward: {RD(valid_profit)}")
+
+    plt.figure(figsize = (10, 5))
+    plt.plot(train_rewards, label = "Train Rewards")
+    plt.plot(valid_rewards, label = "Valid Rewards")
+    plt.title(f"[Model {CFG['id']}]: Rewards")
+    plt.ylabel(f"Rewards")
+    if SAVE_TO_LOG: 
+        plt.savefig(
+            os.path.join(PATH_TO_MODEL, f"rewards_model_{CFG['id']}.png")
+        )
+    plt.show()
+
+    plt.figure(figsize = (10, 5))
+    plt.plot(train_profits, label = "Train Profits")
+    plt.plot(valid_profits, label = "Valid Profits")
+    plt.title(f"[Model {CFG['id']}]: Profits")
+    plt.ylabel(f"Profits")
+    if SAVE_TO_LOG: 
+        plt.savefig(
+            os.path.join(PATH_TO_MODEL, f"profits_model_{CFG['id']}.png")
+        )
+    plt.show()
+
+    OUTPUTS['train_profit'] = RD(train_profit)
+    OUTPUTS['valid_profit'] = RD(valid_profit)
+    OUTPUTS['train_reward'] = RD(train_reward)
+    OUTPUTS['valid_reward'] = RD(valid_reward)
+    GLOBAL_LOGGER.append(CFG, OUTPUTS)
 
 if __name__ == "__main__":
     main()

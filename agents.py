@@ -43,9 +43,7 @@ class Agent(ABC):
         return action
 
     # All agents should have the same default save model
-    def save_model(self, model_name = "best.pth", exp_dir = 'models/'):
-        if os.path.isdir(exp_dir) == False: os.mkdir(exp_dir, 0o777)
-        model_path = os.path.join(exp_dir, model_name)
+    def save_model(self, model_path = "best.pth"):
         torch.save({"model": self.model.state_dict()}, model_path)
 
     @abstractmethod
