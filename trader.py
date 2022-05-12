@@ -2,7 +2,7 @@ from common import *
 from getters import *
 plt.style.use(["ggplot"])
 
-STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
+STAGE         = "andreig" # if we change the structure of the GlobalLogger.csv we increase the stage number
 SAVE_TO_LOG   = True # change this to False if you don't want to save the experiment
 
 GLOBAL_LOGGER = GlobalLogger(
@@ -14,6 +14,8 @@ CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNFixedTargets",
     "estimator"     : "BaseEstimator",
+
+    "feature_used"  : "close_delta",
     
     "optimizer"     : "AdamW",
     "learning_rate" : 0.001,
@@ -53,7 +55,8 @@ def state_creator(data, timestep, window_size):
         windowed_data = data[starting_id: timestep + 1]
     else:
         # if there are not data points we padd it by repeating the first element
-        windowed_data = int(np.abs(starting_id)) * [data[0]] + data[0: timestep + 1]
+        # windowed_data = int(np.abs(starting_id)) * [data[0]] + data[0: timestep + 1]
+        windowed_data = np.concatenate((int(np.abs(starting_id)) * [data[0]], data[0: timestep + 1]), axis=0)
     
     state = []
     for i in range(len(windowed_data) - 1):
@@ -148,9 +151,25 @@ def main():
     logger.print(CFG)
 
     data       = pd.read_csv(PATH_TO_DATA)
-    train_data = data[data['Split'] == 0]["Adj_Close"].tolist()
-    valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
-    test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
+    data      = wrap(data)
+
+    # print(data.head())
+
+    # print(data[['close', 'close_-1_d', 'close_2_d']].head())
+
+
+    # train_data = data[data['split'] == 0][["adj_close"]].values.tolist()
+    # valid_data = data[data['split'] == 1][["adj_close"]].values.tolist()
+    # test_data  = data[data['split'] == 2][["adj_close"]].values.tolist()
+
+    train_data = data[data['split'] == 0][CFG["feature_used"]].tolist()
+    valid_data = data[data['split'] == 1][CFG["feature_used"]].tolist()
+    test_data  = data[data['split'] == 2][CFG["feature_used"]].tolist()
+
+    # print(train_data)
+    # print(train_data.values)
+
+    # return
     
     # All getter for the config file can be found in getters.py
     model        = get_estimator(CFG)

@@ -9,12 +9,14 @@ import matplotlib.pyplot as plt
 
 from tqdm import trange
 from typing import List, Dict
-from torch.optim import AdamW
+from torch.optim import AdamW, Adam
 from IPython.display import display
 from abc import ABC, abstractmethod
 from pandas_datareader import data as datareader
 from matplotlib.collections import LineCollection
 from matplotlib.colors import ListedColormap, BoundaryNorm
+
+from stockstats import wrap
 
 PATH_TO_DATA = 'data/AAPL_stocks_splits.csv'
 
@@ -55,6 +57,9 @@ class GlobalLogger:
 
         if os.path.exists(self.path_to_global_logger):
             self.logger = pd.read_csv(self.path_to_global_logger)
+        else:
+            # create folder if not exist
+            os.makedirs(os.path.dirname(self.path_to_global_logger), exist_ok=True)
 
     def append(self, config_file: Dict, output_file: Dict):
         if self.save_to_log == False: return
