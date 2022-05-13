@@ -12,7 +12,7 @@ GLOBAL_LOGGER = GlobalLogger(
 
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
-    "trader"        : "DQNFixedTargets",
+    "trader"        : "DQNPrioritizedTargets",
     "estimator"     : "BaseEstimator",
     
     "optimizer"     : "AdamW",
@@ -32,6 +32,9 @@ CFG = {
 
     "replay_size"   : 10000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
+
+    "prob_alpha"    : 0.6,                      # only in DQN with prioritized targets
+    "beta_start"    : 0.4
 }
 
 # This should be updated after the we find the financial metrics
@@ -91,21 +94,17 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
         # Because we need one more sliding window after as the next state for prediction
         done = timestep == len(train_data) - 2
         next_state = state_creator(train_data, timestep + 1, window_size + 1)
-        trader.memory.append((state, action, reward, next_state, done))
+        trader.append_state((state, action, reward, next_state, done))
         train_rewards.append(reward)
 
         global_step += 1
         # Training the trader based on the specific type
-        # This should be updated when the replay size will be usable for all Agents
-        if CFG['trader'] == "DQN":
-            if len(trader.memory) > batch_size:
-                trader.batch_train(batch_size)
-
-        elif CFG['trader'] == "DQNFixedTargets":
+        if CFG['trader'] != "DQN":
             if global_step % sync_target == 0:
                 trader.sync_target()
-            if global_step % trader.replay_size == 0:
-                trader.batch_train(batch_size)
+        
+        if global_step % trader.replay_size == 0:
+            trader.batch_train(batch_size)
 
     return trader, np.mean(train_rewards), train_profit, global_step
 
@@ -179,6 +178,20 @@ def main():
             optimizer    = optimizer,
             loss_fn      = loss_fn,
             replay_size  = CFG['replay_size']
+        )
+    elif CFG["trader"] == "DQNPrioritizedTargets":
+        trader = DQNPrioritizedTargets(
+            model        = model,
+            target_model = target_model,
+            state_size   = CFG['window_size'],
+            action_space = CFG['action_space'],
+            scheduler    = scheduler,
+            optimizer    = optimizer,
+            loss_fn      = loss_fn,
+            replay_size  = CFG['replay_size'],
+            prob_alpha   = CFG['prob_alpha'],
+            beta_start   = CFG['beta_start'],
+            n_episodes   = CFG['n_episodes']
         )
 
     global_step = 0

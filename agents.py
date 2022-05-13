@@ -32,6 +32,9 @@ class Agent(ABC):
         logits = self.model_predict_proba(state)
         return np.argmax(logits)
 
+    def append_state(self, state):
+        self.memory.append(state)
+
     # Should be the same for all?
     def trade(self, state):
         rand = np.random.uniform(0, 1)
@@ -79,19 +82,14 @@ class DQN(Agent):
         self.optimizer.step()
         
     def batch_train(self, batch_size):
-        batch = []
-        for i in range(len(self.memory) - batch_size + 1, len(self.memory)):
-            batch.append(self.memory[i])
-
-        for state, action, reward, next_state, done in batch:
-            if not done:
-                logits = self.model_predict_proba(next_state)
-                reward = reward + self.gamma * np.max(logits)
-            target = self.model_predict_proba(state)
-            target[action] = reward
-
-            target = np.array([target])            
-            self.training_step(state, target)
+        replay_index = max(0, len(self.memory) - self.replay_size)
+        
+        for i in range(replay_index, len(self.memory), batch_size):
+            batch = self.memory[i: i + batch_size]
+            states, actions, rewards, next_states, dones = list(zip(*batch))
+            states = np.array(states).squeeze(1)
+            next_states = np.array(next_states).squeeze(1)
+            self.training_step(states, actions, rewards, next_states, dones)
 
         self.scheduler.step()
 
@@ -140,15 +138,134 @@ class DQNFixedTargets(Agent):
         self.optimizer.step()
 
     def batch_train(self, batch_size):
-        replay_buffer = self.memory[- self.replay_size :]
-        buffer_size   = min(self.replay_size, len(replay_buffer))
+        replay_index = max(0, len(self.memory) - self.replay_size)
         
-        for i in range(0, buffer_size, batch_size):
-            batch = replay_buffer[i: i + batch_size]
+        for i in range(replay_index, len(self.memory), batch_size):
+            batch = self.memory[i: i + batch_size]
             states, actions, rewards, next_states, dones = list(zip(*batch))
             states = np.array(states).squeeze(1)
             next_states = np.array(next_states).squeeze(1)
             self.training_step(states, actions, rewards, next_states, dones)
 
-        # ISSUE: check the book to be sure it should be done here?
+        self.scheduler.step()
+
+class DQNPrioritizedTargets(Agent):
+    
+    def __init__(self,
+        model             : torch.nn.Module,
+        state_size        : int, 
+        action_space      : int, 
+        scheduler         : EpsilonScheduler,
+        optimizer         : torch.nn.Module,
+        loss_fn           : torch.nn.MSELoss,
+        target_model      : torch.nn.Module,
+        replay_size       : int = 10000,
+        prob_alpha        : float = 0.6,
+        beta_start        : float = 0.4,
+        n_episodes        : int = 1000
+    ):
+        super().__init__(model, state_size, action_space, scheduler, optimizer, loss_fn)
+        self.target_model = target_model
+        self.replay_size  = replay_size
+        self.memory       = []
+        
+        self.priorities   = []
+        self.prob_alpha   = prob_alpha
+        
+        self.beta_start   = beta_start
+        self.beta         = beta_start
+        self.episode_id   = 0
+        self.n_episodes   = n_episodes
+
+    def detach_low_prio_states(self):
+        """ gets rid of states with low priority if the memory exceeds the replay buffer size; made for optimization purpose and it replaces the buffer position from the book
+        """
+        if len(self.memory) > self.replay_size:
+            prios = np.array(self.priorities)
+            probs = prios ** self.prob_alpha
+            probs /= probs.sum()
+
+            indices = np.random.choice(len(self.memory), self.replay_size // 4, p=probs)
+            buffer = [self.memory[idx] for idx in indices]
+            priorities = [self.priorities[idx] for idx in indices]
+            
+            self.memory = buffer
+            self.priorities = priorities
+
+    def sync_target(self):
+        current_state_dict = self.model.state_dict()
+        self.target_model.load_state_dict(current_state_dict)
+
+    def append_state(self, state):
+        """ appends to the memory in the limit of replay size; If the limit is archieved, the states are replaced from left to right
+        """
+        self.memory.append(state)
+        prio_max = np.max(self.priorities) if len(self.priorities) > 0 else 1
+        self.priorities.append(prio_max)
+        
+
+    def sample_batch(self, batch_size):
+        """ using formulae from the article/book it selects the memorized states in a specific order and returns the batch_weights
+        """
+        prios = np.array(self.priorities)
+        probs = prios ** self.prob_alpha
+        probs /= probs.sum()
+
+        indices = np.random.choice(len(self.memory), batch_size, p=probs)
+        samples = [self.memory[idx] for idx in indices]
+
+        total = len(self.memory)
+        weights = (total * probs[indices]) ** (-self.beta)
+        weights /= weights.max()
+        return samples, indices, weights
+    
+    def update_priorities(self, batch_indices, batch_priorities):
+        """ updates the priorities with the weighted loss computed on the specific batch 
+        """
+        for idx, prio in zip(batch_indices, batch_priorities.tolist()):
+            self.priorities[idx] = prio
+
+    def training_step(self, states, actions, rewards, next_states, dones, batch_weights):
+        """ same as before with weighted L1Loss extracted from batch_weights
+        """
+        states        = torch.tensor(states).float().to(DEVICE)
+        next_states   = torch.tensor(next_states).float().to(DEVICE)
+        actions       = torch.tensor(actions).to(DEVICE)
+        rewards       = torch.tensor(rewards).to(DEVICE)
+        done_mask     = torch.ByteTensor(dones).to(DEVICE)
+        batch_weights = torch.tensor(batch_weights).to(DEVICE)
+
+        self.model.train()
+        self.optimizer.zero_grad()
+
+        state_action_probas = self.model(states).gather(1, actions.unsqueeze(-1))
+        state_action_probas = state_action_probas.squeeze(-1)
+
+        with torch.no_grad():
+            next_state_probas, _ = self.target_model(next_states).max(axis = 1)
+            if done_mask.all().item() != 0:
+                next_state_probas[done_mask] = 0.0
+
+        expected_values = next_state_probas.detach() * self.gamma + rewards
+        losses = batch_weights * (state_action_probas - expected_values) ** 2
+        loss = losses.mean()
+
+        loss.backward()
+        self.optimizer.step()
+        return losses + 1e-5
+
+    def batch_train(self, batch_size):
+        self.beta = min(1.0, self.beta_start + self.episode_id * (1.0 - self.beta_start) / self.n_episodes)
+        self.episode_id += 1
+
+        n_batches = self.replay_size // batch_size
+        for _ in range(n_batches):
+            batch, batch_indices, batch_weights = self.sample_batch(batch_size)
+            states, actions, rewards, next_states, dones = list(zip(*batch))
+            states = np.array(states).squeeze(1)
+            next_states = np.array(next_states).squeeze(1)
+
+            sampled_prios = self.training_step(states, actions, rewards, next_states, dones, batch_weights)
+            self.update_priorities(batch_indices, sampled_prios)
+
         self.scheduler.step()
