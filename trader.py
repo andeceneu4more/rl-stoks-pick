@@ -1,12 +1,15 @@
+from site import USER_BASE
 from common import *
 from getters import *
 plt.style.use(["ggplot"])
 
-STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
-SAVE_TO_LOG   = True # change this to False if you don't want to save the experiment
+# REFACTOR: moved them in the common.py
+# USER          = "andreig"
+# STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
+SAVE_TO_LOG     = True # change this to False if you don't want to save the experiment
 
 GLOBAL_LOGGER = GlobalLogger(
-    path_to_global_logger = f'logs/stage-{STAGE}/global_logger.csv',
+    path_to_global_logger = f'logs/{USER}/stage-{STAGE}/global_logger.csv',
     save_to_log = SAVE_TO_LOG
 )
 
@@ -14,6 +17,9 @@ CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNPrioritizedTargets",
     "estimator"     : "BaseEstimator",
+
+    "features_used"  : ["close_-1_d", "close_12_trix", "rsi"], # for the moment, only the first in the list will be used
+    "target_used"  : "adj_close",
     
     "optimizer"     : "AdamW",
     "learning_rate" : 0.001,
@@ -52,15 +58,22 @@ def state_creator(data, timestep, window_size):
     """ Generating Features for the estimators """
     starting_id = timestep - window_size + 1
 
+    # TODO: use all features, not just the first in the list
+    # data = np.squeeze(data)
+    data = np.array(data)[:, 0]
+
     if starting_id >= 0:
         windowed_data = data[starting_id: timestep + 1]
     else:
         # if there are not data points we padd it by repeating the first element
-        windowed_data = int(np.abs(starting_id)) * [data[0]] + data[0: timestep + 1]
+        # windowed_data = int(np.abs(starting_id)) * [data[0]] + data[0: timestep + 1]
+        windowed_data = np.concatenate((int(np.abs(starting_id)) * [data[0]], data[0: timestep + 1]), axis=0)
     
     state = []
     for i in range(len(windowed_data) - 1):
         state.append(sigmoid(windowed_data[i + 1] - windowed_data[i]))
+    # for i in range(len(windowed_data) - 1):
+    #     state.append(windowed_data[i])
 
     return np.array([state])
 
@@ -69,13 +82,20 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
     trader.portfolio, train_rewards = [], []    
 
     # Standard "data" iteration
-    for timestep, current_stock_price in enumerate(train_data):
+    # for timestep, current_stock_price in enumerate(train_data):
+    #     print(current_stock_price)
+    features, stock_prices = train_data[0], train_data[1]
+    state_creator_param = features
+    for timestep, current_stock_price in enumerate(stock_prices):
         # We discard the last sample because we don't have a next state for it
-        if timestep == len(train_data) - 1: break
+        if timestep == len(state_creator_param) - 1: break
 
         # Generate the current state to be predicted, 
         # [states] variable represents the input features for DNN to determine the action
-        state  = state_creator(train_data, timestep, window_size + 1)    
+        state  = state_creator(state_creator_param, timestep, window_size + 1)
+
+        # pdb.set_trace()
+
         action = trader.trade(state)
         reward = 0
         
@@ -92,8 +112,8 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
         
         # The penultimate element is the last valid one 
         # Because we need one more sliding window after as the next state for prediction
-        done = timestep == len(train_data) - 2
-        next_state = state_creator(train_data, timestep + 1, window_size + 1)
+        done = timestep == len(state_creator_param) - 2
+        next_state = state_creator(state_creator_param, timestep + 1, window_size + 1)
         trader.append_state((state, action, reward, next_state, done))
         train_rewards.append(reward)
 
@@ -112,8 +132,11 @@ def valid_fn(trader, valid_data, window_size):
     valid_profit = 0
     trader.portfolio, valid_rewards = [], []    
 
-    for timestep, current_stock_price in enumerate(valid_data):
-        state  = state_creator(valid_data, timestep, window_size + 1)    
+    # for timestep, current_stock_price in enumerate(valid_data):
+    features, stock_prices = valid_data[0], valid_data[1]
+    state_creator_param = features
+    for timestep, current_stock_price in enumerate(stock_prices):
+        state  = state_creator(state_creator_param, timestep, window_size + 1)    
         action = trader.model_predict(state)
         reward = 0
 
@@ -133,7 +156,7 @@ def valid_fn(trader, valid_data, window_size):
     return np.mean(valid_rewards), valid_profit
 
 def main():
-    PATH_TO_MODEL = f"models/stage-{STAGE}/model-{CFG['id']}"
+    PATH_TO_MODEL = f"models/{USER}/stage-{STAGE}/model-{CFG['id']}"
     if SAVE_TO_LOG:
         if not os.path.isdir(PATH_TO_MODEL): os.makedirs(PATH_TO_MODEL, 0o777)
         logger = Logger(
@@ -147,9 +170,19 @@ def main():
     logger.print(CFG)
 
     data       = pd.read_csv(PATH_TO_DATA)
-    train_data = data[data['Split'] == 0]["Adj_Close"].tolist()
-    valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
-    test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
+    data      = wrap(data)
+
+    train_data = [data[data['split'] == 0][CFG["features_used"]].values.tolist(), data[data['split'] == 0][CFG["target_used"]].tolist()]
+    valid_data = [data[data['split'] == 1][CFG["features_used"]].values.tolist(), data[data['split'] == 1][CFG["target_used"]].tolist()]
+    test_data = [data[data['split'] == 2][CFG["features_used"]].values.tolist(), data[data['split'] == 2][CFG["target_used"]].tolist()]
+    
+
+    # valid_data = data[data['split'] == 1][["adj_close"]].values.tolist()
+    # test_data  = data[data['split'] == 2][["adj_close"]].values.tolist()
+
+    # train_data = data[data['split'] == 0][CFG["target_used"]].tolist()
+    # valid_data = data[data['split'] == 1][CFG["target_used"]].tolist()
+    # test_data  = data[data['split'] == 2][CFG["target_used"]].tolist()
     
     # All getter for the config file can be found in getters.py
     model        = get_estimator(CFG)
@@ -219,9 +252,15 @@ def main():
         if best_mean_reward < valid_reward:
             best_mean_reward = valid_reward
             if SAVE_TO_LOG:
+                # save as before
                 trader.save_model(
                     model_path = os.path.join(
                         PATH_TO_MODEL, f"model_{CFG['id']}_episode_{episode}_profit_{RD(valid_profit)}_reward_{RD(valid_reward)}.pth")
+                )
+                # also save as "best" just for the ease of use in the inference
+                trader.save_model(
+                    model_path = os.path.join(
+                        PATH_TO_MODEL, f"best.pth")
                 )
 
         train_profits.append(train_profit)
@@ -235,6 +274,7 @@ def main():
     plt.figure(figsize = (10, 5))
     plt.plot(train_rewards, label = "Train Rewards")
     plt.plot(valid_rewards, label = "Valid Rewards")
+    plt.legend()
     plt.title(f"[Model {CFG['id']}]: Rewards")
     plt.ylabel(f"Rewards")
     if SAVE_TO_LOG: 
@@ -246,6 +286,7 @@ def main():
     plt.figure(figsize = (10, 5))
     plt.plot(train_profits, label = "Train Profits")
     plt.plot(valid_profits, label = "Valid Profits")
+    plt.legend()
     plt.title(f"[Model {CFG['id']}]: Profits")
     plt.ylabel(f"Profits")
     if SAVE_TO_LOG: 

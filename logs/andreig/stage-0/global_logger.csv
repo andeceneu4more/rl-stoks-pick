@@ -1,0 +1,12 @@
+id,trader,estimator,features_used,target_used,optimizer,learning_rate,criterion,eps_scheduler,epsilon,epsilon_final,epsilon_decay,action_space,window_size,batch_size,n_episodes,replay_size,sync_steps,train_profit,valid_profit,train_reward,valid_reward,observation
+0,DQNFixedTargets,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,100,10000,1000,545.458,0.0,0.898,0.0,Baseline
+1,DQNFixedTargets,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,1.392,3160.903,0.111,3.916,Baseline
+2,DQNFixedTargets,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1,10000,1000,2299.266,0.0,2.95,0.0,Baseline
+3,DQNFixedTargets,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1,10000,1000,2299.266,0.0,2.95,0.0,Baseline
+4,DQNFixedTargets,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1,10000,1000,2299.266,0.0,2.95,0.0,Baseline
+5,DQNFixedTargets,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,100,10000,1000,545.458,0.0,0.898,0.0,Baseline
+6,DQNFixedTargets,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,1.392,60.379,0.111,0.503,Baseline
+7,DQNFixedTargets,BaseEstimator,['close_-1_d'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,5.306,15.56,0.108,0.067,Baseline
+8,DQNFixedTargets,BaseEstimator,"['rsi', 'close_-1_d']",adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,-5.498,0.0,0.264,0.0,Baseline
+9,DQNFixedTargets,BaseEstimator,"['close_12_trix', 'rsi', 'close_-1_d']",adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,5.306,0.0,0.108,0.0,Baseline
+10,DQNFixedTargets,BaseEstimator,"['close_-1_d', 'close_12_trix', 'rsi']",adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,5.306,15.56,0.108,0.067,Baseline
