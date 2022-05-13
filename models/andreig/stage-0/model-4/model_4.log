@@ -1,0 +1,5 @@
+Config File
+{'id': 4, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['adj_close'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1, 'replay_size': 10000, 'sync_steps': 1000}
+======================================== Episode: 1/1 ========================================
+======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
+======================================== Episode: 1, Valid Profit: 0, Valid Reward: 0

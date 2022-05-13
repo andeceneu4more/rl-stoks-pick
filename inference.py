@@ -39,12 +39,14 @@ def draw_points(series, actions, data_type = "validation", savefig = None):
     colors  = ["", "blue", "red"] # blue -> buy, red -> sell
     labels  = ["", "Buy Point", "Sell Point"]
 
-    cnt = 0
+    cnt = set()
     for i, _ in enumerate(actions):
         if actions[i] == 0: continue
-        if cnt < 2:
+
+        # BUG: if two actions are the same, one after the other, the legend is badly generated: RESOLVED
+        if actions[i] not in cnt:
             plt.scatter([i], [series[i]], color = colors[actions[i]], label = labels[actions[i]], marker = markers[actions[i]])
-            cnt += 1
+            cnt.add(actions[i])
         else:
             plt.scatter([i], [series[i]], color = colors[actions[i]], marker = markers[actions[i]])
 
@@ -57,12 +59,22 @@ def draw_points(series, actions, data_type = "validation", savefig = None):
     plt.show()
     
 if __name__ == "__main__":
-    STAGE = 0
-    MODEL = 0
-    PATH_TO_MODEL = f'models/stage-{STAGE}/model-{MODEL}/model_{MODEL}_episode_999_profit_157.025_reward_1.109.pth'
+    # STAGE = 0
+    # USER  = "andreig"
+    MODEL   = 6
 
     model = get_estimator(CFG)
-    model.load_state_dict(torch.load(PATH_TO_MODEL)['model'])
+
+    try:
+        PATH_TO_MODEL = f'models/{USER}/stage-{STAGE}/model-{MODEL}/best.pth'
+        model.load_state_dict(torch.load(PATH_TO_MODEL)['model'])
+    except OSError as e:
+        EPISODE = 999
+        PROFIT  = 60.379
+        REWARD  = 0.503
+        PATH_TO_MODEL = f'models/{USER}/stage-{STAGE}/model-{MODEL}/model_{MODEL}_episode_{EPISODE}_profit_{PROFIT}_reward_{REWARD}.pth'
+        model.load_state_dict(torch.load(PATH_TO_MODEL)['model'])
+
     model.eval()
 
     data       = pd.read_csv(PATH_TO_DATA)
@@ -75,5 +87,8 @@ if __name__ == "__main__":
     # valid_actions = [0] * CFG['window_size'] + valid_actions[: -CFG['window_size']]
     # test_actions  = [0] * CFG['window_size'] + test_actions[: -CFG['window_size']]
 
-    draw_points(valid_data, valid_actions, data_type = "validation", savefig = f"images/valid_actions_stage_{STAGE}_model_{MODEL}.png")
-    draw_points(test_data,  test_actions,  data_type = "test"      , savefig = f"images/test_actions_stage_{STAGE}_model_{MODEL}.png")
+    path_to_images = f"images/{USER}/stage-{STAGE}"
+    os.makedirs(path_to_images, exist_ok=True)
+
+    draw_points(valid_data, valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
+    draw_points(test_data,  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
