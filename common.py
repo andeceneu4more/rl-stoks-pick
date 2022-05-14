@@ -6,15 +6,19 @@ import numpy as np
 import pandas as pd
 import torch.nn as nn
 import matplotlib.pyplot as plt
+import pdb
 
 from tqdm import trange
 from typing import List, Dict
-from torch.optim import AdamW
+from torch.optim import AdamW, Adam
 from IPython.display import display
 from abc import ABC, abstractmethod
 from pandas_datareader import data as datareader
 from matplotlib.collections import LineCollection
 from matplotlib.colors import ListedColormap, BoundaryNorm
+
+from stockstats import wrap
+import pyfolio
 
 PATH_TO_DATA = 'data/AAPL_stocks_splits.csv'
 
@@ -32,6 +36,9 @@ SEED    = 42
 DEVICE  = torch.device('cuda:0') if torch.cuda.is_available() else torch.device('cpu')
 RD      = lambda x: np.round(x, 3)
 sigmoid = lambda x: 1 / (1 + np.exp(-x))
+
+STAGE   = 0         # if we change the structure of the GlobalLogger.csv we increase the stage number
+USER    = "andreig"
 
 seed_everything(seed = SEED)
 
@@ -55,6 +62,9 @@ class GlobalLogger:
 
         if os.path.exists(self.path_to_global_logger):
             self.logger = pd.read_csv(self.path_to_global_logger)
+        else:
+            # create folder if not exist
+            os.makedirs(os.path.dirname(self.path_to_global_logger), exist_ok=True)
 
     def append(self, config_file: Dict, output_file: Dict):
         if self.save_to_log == False: return

@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch
 
 class BaseEstimator(nn.Module):
     def __init__(self, state_size, action_space):
@@ -17,4 +18,6 @@ class BaseEstimator(nn.Module):
         )
 
     def forward(self, x):
+        x = x.view(x.size(0), -1)
+
         return self.model(x)
