@@ -1,5 +1,9 @@
+# Best results so far: rsi_5
 from common import *
 from getters import *
+import matplotlib.pyplot as plt
+from stockstats import StockDataFrame
+
 plt.style.use(["ggplot"])
 
 STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
@@ -148,6 +152,18 @@ def main():
     logger.print(CFG)
 
     data       = pd.read_csv(PATH_TO_DATA)
+    """stock_data = StockDataFrame(data=data.rename(columns={
+        'Close': 'close',
+        'Open': 'open',
+        'High': 'high',
+        'Low': 'low',
+        'Volume': 'volume'
+    }))
+    column = stock_data['cci']
+    column[0] = 0
+    data['Adj_Close'] = column
+    """
+
     train_data = data[data['Split'] == 0]["Adj_Close"].tolist()
     valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
     test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
