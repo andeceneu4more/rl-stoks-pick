@@ -1,6 +1,9 @@
 from site import USER_BASE
 from common import *
 from getters import *
+import matplotlib.pyplot as plt
+from stockstats import StockDataFrame
+
 plt.style.use(["ggplot"])
 
 # REFACTOR: moved them in the common.py
@@ -94,8 +97,6 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
         # [states] variable represents the input features for DNN to determine the action
         state  = state_creator(state_creator_param, timestep, window_size + 1)
 
-        # pdb.set_trace()
-
         action = trader.trade(state)
         reward = 0
         
@@ -119,12 +120,16 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
 
         global_step += 1
         # Training the trader based on the specific type
-        if CFG['trader'] != "DQN":
-            if global_step % sync_target == 0:
-                trader.sync_target()
-        
-        if global_step % trader.replay_size == 0:
-            trader.batch_train(batch_size)
+        # This should be updated when the replay size will be usable for all Agents
+        if CFG['trader'] == "DQN":
+            if len(trader.memory) % batch_size == 0:
+                trader.batch_train(batch_size)
+        else:
+            if CFG['trader'] in ["DQNVanilla", "DQNFixedTargets", "DQNPrioritizedTargets"]:
+                if global_step % sync_target == 0:
+                    trader.sync_target()
+            if global_step % trader.replay_size == 0:
+                trader.batch_train(batch_size)
 
     return trader, np.mean(train_rewards), train_profit, global_step
 
@@ -200,6 +205,16 @@ def main():
             scheduler    = scheduler,
             optimizer    = optimizer,
             loss_fn      = loss_fn,
+        )
+    elif CFG["trader"] == "DQNVanilla":
+        trader = DQNVanilla(
+            model        = model,
+            state_size   = CFG['window_size'],
+            action_space = CFG['action_space'],
+            scheduler    = scheduler,
+            optimizer    = optimizer,
+            loss_fn      = loss_fn,
+            replay_size  = CFG['replay_size']
         )
     elif CFG["trader"] == "DQNFixedTargets":
         trader = DQNFixedTargets(

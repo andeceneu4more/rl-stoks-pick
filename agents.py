@@ -82,14 +82,59 @@ class DQN(Agent):
         self.optimizer.step()
         
     def batch_train(self, batch_size):
-        replay_index = max(0, len(self.memory) - self.replay_size)
+        batch = self.memory[-batch_size:]
+
+        for state, action, reward, next_state, done in batch:
+            if not done:
+                logits = self.model_predict_proba(next_state)
+                reward = reward + self.gamma * np.max(logits)
+            target = self.model_predict_proba(state)
+            target[action] = reward
+
+            target = np.array([target])            
+            self.training_step(state, target)
+
+        self.scheduler.step()
+
+class DQNVanilla(Agent):
+    def __init__(self,
+        model             : torch.nn.Module,
+        state_size        : int, 
+        action_space      : int, 
+        scheduler         : EpsilonScheduler,
+        optimizer         : torch.nn.Module,
+        loss_fn           : torch.nn.MSELoss,
+        replay_size       : int = 10000
+    ):
+        super().__init__(model, state_size, action_space, scheduler, optimizer, loss_fn)
+        self.replay_size  = replay_size
+
+    def training_step(self, state, target):
+        state = torch.tensor(state).float().to(DEVICE)
+        target = torch.tensor(target).float().to(DEVICE)
+
+        self.model.train()
+        self.optimizer.zero_grad()
+
+        logits = self.model(state)
+        loss   = self.loss_fn(logits, target)
+
+        loss.backward()
+        self.optimizer.step()
         
-        for i in range(replay_index, len(self.memory), batch_size):
-            batch = self.memory[i: i + batch_size]
-            states, actions, rewards, next_states, dones = list(zip(*batch))
-            states = np.array(states).squeeze(1)
-            next_states = np.array(next_states).squeeze(1)
-            self.training_step(states, actions, rewards, next_states, dones)
+    def batch_train(self, batch_size):
+        replay_buffer = self.memory[- self.replay_size :]
+        
+        for batch in replay_buffer:
+            state, action, reward, next_state, done = batch
+            if not done:
+                logits = self.model_predict_proba(next_state)
+                reward = reward + self.gamma * np.max(logits)
+            target = self.model_predict_proba(state)
+            target[action] = reward
+
+            target = np.array([target])            
+            self.training_step(state, target)
 
         self.scheduler.step()
 

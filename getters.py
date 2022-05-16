@@ -1,6 +1,6 @@
 from common import *
 from models import BaseEstimator
-from agents import DQN, DQNFixedTargets, DQNPrioritizedTargets, EpsilonScheduler
+from agents import DQN, DQNVanilla, DQNFixedTargets, DQNPrioritizedTargets, EpsilonScheduler
 
 def get_estimator(config_file):
     assert config_file["estimator"] in \
