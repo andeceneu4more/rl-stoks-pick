@@ -23,7 +23,7 @@ Instead of predicting real numbers for our target we instead want to predict one
 4. ~~Adding inference script for valid and test set based on existing models~~ &#8594; **Assignee**: Adrian Iordache, **Status**: Done
 5. Prioritized Experience Replay (already have this, integration for vanilla) - experiments and results for validation and test &#8594; **Assignee**: Manea Andrei, **Status**: In progress 
 6. Another evaluation metrics (backtesting, [pyfolio](https://github.com/quantopian/pyfolio), [FinRL](https://github.com/AI4Finance-Foundation/FinRL/blob/master/tutorials/1-Introduction/FinRL_StockTrading_Fundamental.ipynb), (https://github.com/AI4Finance-Foundation/Deep-Reinforcement-Learning-for-Automated-Stock-Trading-Ensemble-Strategy-ICAIF-2020/blob/master/backtesting.ipynb)) &#8594; **Assignee**: Sichitiu Marian, Gîdea Andrei, **Status**: In progress
-7. OpenAI Gym Integration ? &#8594; **Assignee**: Manea Andrei, **Status**: In progress
+7. ~~OpenAI Gym Integration ? &#8594; **Assignee**: Manea Andrei, **Status**: Aborted~~
 8. Vanilla DQN - experiments and results for validation and test &#8594; **Assignee**: Manea Andrei, Adrian Iordache, **Status**: Waiting
 9. DQN with fixed targets (target network)(already have this) - experiments and results for validation and test  &#8594; **Assignee**:  Manea Andrei, Adrian Iordache, **Status**: Waiting
 10. Double DQN  - experiments and results for validation and test  &#8594; **Assignee**: Manea Andrei, **Status**: In progress 
