@@ -18,7 +18,7 @@ GLOBAL_LOGGER = GlobalLogger(
 
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
-    "trader"        : "DQNPrioritizedTargets",
+    "trader"        : "DQNDouble",
     "estimator"     : "BaseEstimator",
 
     "features_used"  : ["close_-1_d", "close_12_trix", "rsi"], # for the moment, only the first in the list will be used
@@ -240,6 +240,17 @@ def main():
             prob_alpha   = CFG['prob_alpha'],
             beta_start   = CFG['beta_start'],
             n_episodes   = CFG['n_episodes']
+        )
+    elif CFG["trader"] == "DQNDouble":
+        trader = DQNDouble(
+            model        = model,
+            target_model = target_model,
+            state_size   = CFG['window_size'],
+            action_space = CFG['action_space'],
+            scheduler    = scheduler,
+            optimizer    = optimizer,
+            loss_fn      = loss_fn,
+            replay_size  = CFG['replay_size']
         )
 
     global_step = 0

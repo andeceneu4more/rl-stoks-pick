@@ -321,3 +321,63 @@ class DQNPrioritizedTargets(Agent):
             self.update_priorities(batch_indices, sampled_prios)
 
         self.scheduler.step()
+
+
+class DQNDouble(Agent):
+    def __init__(self,
+        model             : torch.nn.Module,
+        state_size        : int, 
+        action_space      : int, 
+        scheduler         : EpsilonScheduler,
+        optimizer         : torch.nn.Module,
+        loss_fn           : torch.nn.MSELoss,
+        target_model      : torch.nn.Module,
+        replay_size       : int = 10000
+    ):
+        super().__init__(model, state_size, action_space, scheduler, optimizer, loss_fn)
+        self.target_model = target_model
+        self.replay_size  = replay_size
+
+    def training_step(self, states, actions, rewards, next_states, dones):
+        """ same as fixed targets, but for extracting the probabilities: instead of choosing the best action from the target model, it uses the best actions evaluated by the training model 
+        """
+        states      = torch.tensor(states).float().to(DEVICE)
+        next_states = torch.tensor(next_states).float().to(DEVICE)
+        actions     = torch.tensor(actions).to(DEVICE)
+        rewards     = torch.tensor(rewards).to(DEVICE)
+        done_mask   = torch.ByteTensor(dones).to(DEVICE)
+
+        self.model.train()
+        self.optimizer.zero_grad()
+
+        state_action_probas = self.model(states).gather(1, actions.unsqueeze(-1))
+        state_action_probas = state_action_probas.squeeze(-1)
+
+        with torch.no_grad():
+            model_qp_out = self.model(next_states)
+            next_state_actions = torch.argmax(model_qp_out, axis = 1)
+
+            next_state_probas = self.target_model(next_states)
+            next_state_probas = next_state_probas.gather(1, next_state_actions.unsqueeze(-1))
+            next_state_probas = next_state_probas.squeeze(-1)
+
+            if done_mask.all().item() != 0:
+                next_state_probas[done_mask] = 0.0
+
+        expected_values = next_state_probas.detach() * self.gamma + rewards
+        loss = self.loss_fn(state_action_probas, expected_values)
+
+        loss.backward()
+        self.optimizer.step()
+
+    def batch_train(self, batch_size):
+        replay_index = max(0, len(self.memory) - self.replay_size)
+        
+        for i in range(replay_index, len(self.memory), batch_size):
+            batch = self.memory[i: i + batch_size]
+            states, actions, rewards, next_states, dones = list(zip(*batch))
+            states = np.array(states).squeeze(1)
+            next_states = np.array(next_states).squeeze(1)
+            self.training_step(states, actions, rewards, next_states, dones)
+
+        self.scheduler.step()
