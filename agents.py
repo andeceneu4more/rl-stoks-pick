@@ -337,6 +337,10 @@ class DQNDouble(Agent):
         super().__init__(model, state_size, action_space, scheduler, optimizer, loss_fn)
         self.target_model = target_model
         self.replay_size  = replay_size
+    
+    def sync_target(self):
+        current_state_dict = self.model.state_dict()
+        self.target_model.load_state_dict(current_state_dict)
 
     def training_step(self, states, actions, rewards, next_states, dones):
         """ same as fixed targets, but for extracting the probabilities: instead of choosing the best action from the target model, it uses the best actions evaluated by the training model 

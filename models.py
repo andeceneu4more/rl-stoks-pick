@@ -21,3 +21,19 @@ class BaseEstimator(nn.Module):
         x = x.view(x.size(0), -1)
 
         return self.model(x)
+
+class BaseDuelingEstimator(nn.Module):
+    def __init__(self, state_size, action_space):
+        super().__init__()
+
+        self.estimator_ = BaseEstimator(state_size, action_space)
+        self.adversarial_ = BaseEstimator(state_size, action_space)
+
+    def forward(self, x):
+        x = x.view(x.size(0), -1)
+
+        out_est = self.estimator_(x)
+        out_adv = self.adversarial_(x)
+
+        out = out_est + out_adv - out_adv.mean()
+        return out

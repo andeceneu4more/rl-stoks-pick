@@ -18,8 +18,8 @@ GLOBAL_LOGGER = GlobalLogger(
 
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
-    "trader"        : "DQNDouble",
-    "estimator"     : "BaseEstimator",
+    "trader"        : "DQNFixedTargets",
+    "estimator"     : "BaseDuelingEstimator",
 
     "features_used"  : ["close_-1_d", "close_12_trix", "rsi"], # for the moment, only the first in the list will be used
     "target_used"  : "adj_close",
@@ -125,9 +125,9 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
             if len(trader.memory) % batch_size == 0:
                 trader.batch_train(batch_size)
         else:
-            if CFG['trader'] in ["DQNVanilla", "DQNFixedTargets", "DQNPrioritizedTargets"]:
-                if global_step % sync_target == 0:
-                    trader.sync_target()
+            if CFG['trader'] in ["DQNFixedTargets", "DQNPrioritizedTargets", "DQNDouble"] \
+                and global_step % sync_target == 0:
+                trader.sync_target()
             if global_step % trader.replay_size == 0:
                 trader.batch_train(batch_size)
 
