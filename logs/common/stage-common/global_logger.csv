@@ -1,0 +1,4 @@
+id,trader,estimator,features_used,target_used,optimizer,learning_rate,criterion,eps_scheduler,epsilon,epsilon_final,epsilon_decay,action_space,window_size,batch_size,n_episodes,replay_size,sync_steps,train_profit,valid_profit,train_reward,valid_reward,observation
+0,DQNFixedTargets,BaseEstimator,"['rsi_5', 'close_12_trix', 'rsi']",adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,-5.498,0,0.264,0.0,Baseline
+1,DQNFixedTargets,BaseEstimator,['rsi_5'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,-29.515,0,0.177,0.0,Baseline
+2,DQNFixedTargets,BaseEstimator,['wr_6'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,5.267,3.582,0.144,0.017,Baseline
