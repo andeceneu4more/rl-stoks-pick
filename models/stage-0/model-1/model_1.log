@@ -1,0 +1,2 @@
+Config File
+{'id': 1, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1000, 'replay_size': 10000, 'sync_steps': 1000}
