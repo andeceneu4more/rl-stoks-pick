@@ -29,7 +29,7 @@ Instead of predicting real numbers for our target we instead want to predict one
 10. Double DQN  - experiments and results for validation and test  &#8594; **Assignee**: Manea Andrei, **Status**: In progress 
 11. Dueling Double DQN Architectures - experiments and results for validation and test &#8594; **Assignee**: Manea Andrei, **Status**: In progress 
 12. Searching for other features as input ([stockstats](https://pypi.org/project/stockstats/)) &#8594; **Assignee**: Dobre Bogdan, Sichitiu Marian, Gîdea Andrei, **Status**: In progress
-13. Improved Estimator Networks, Convolutional 1d vs Fully Connected, maybe LSTM or transformer encoder or transofrmer encoder decoder &#8594; **Assignee**: Sichitiu Marian, Gîdea Andrei, **Status**: In progress
+13. Improved Estimator Networks, Convolutional 1d vs Fully Connected, maybe LSTM or transformer encoder or transofrmer encoder decoder (https://github.com/lucidrains/tab-transformer-pytorch?utm_source=catalyzex.com) &#8594; **Assignee**: Sichitiu Marian, Gîdea Andrei, **Status**: In progress
 
 # Optional Tasks
 1. Throw away all episodes with a reward below the boundary
