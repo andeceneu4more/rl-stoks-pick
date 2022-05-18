@@ -20,7 +20,7 @@ CFG = {
     "trader"        : "DQNFixedTargets",
     "estimator"     : "BaseEstimator",
 
-    "features_used"  : ["close_-1_d", "close_12_trix", "rsi"], # for the moment, only the first in the list will be used
+    "features_used"  : ["adj_close", "rsi"], # for the moment, only the first in the list will be used
     "target_used"  : "adj_close",
     
     "optimizer"     : "AdamW",
@@ -36,7 +36,7 @@ CFG = {
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
     "batch_size"    : 32,
-    "n_episodes"    : 100,
+    "n_episodes"    : 1000,
 
     "replay_size"   : 10000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -52,17 +52,16 @@ OUTPUTS = {
 
     "train_reward": "NA",
     "valid_reward": "NA",
-    "observation" : "Baseline" # This field should be used as a comment in GloablLogger.csv
+    "observation" : "Use all features from features_used field" # This field should be used as a comment in GloablLogger.csv
 }
-
 
 def state_creator(data, timestep, window_size):
     """ Generating Features for the estimators """
     starting_id = timestep - window_size + 1
 
-    # TODO: use all features, not just the first in the list
-    # data = np.squeeze(data)
-    data = np.array(data)[:, 0]
+    # # TODO: use all features, not just the first in the list
+    # # data = np.squeeze(data)
+    # data = np.array(data)[:, 0]
 
     if starting_id >= 0:
         windowed_data = data[starting_id: timestep + 1]
@@ -73,7 +72,8 @@ def state_creator(data, timestep, window_size):
     
     state = []
     for i in range(len(windowed_data) - 1):
-        state.append(sigmoid(windowed_data[i + 1] - windowed_data[i]))
+        # state.append(sigmoid(windowed_data[i + 1] - windowed_data[i]))
+        state.append(normalize_features(windowed_data[i + 1], windowed_data[i]))
     # for i in range(len(windowed_data) - 1):
     #     state.append(windowed_data[i])
 

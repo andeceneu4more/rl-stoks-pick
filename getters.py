@@ -1,3 +1,4 @@
+from distutils.command.config import config
 from common import *
 from models import BaseEstimator, BaseDuelingEstimator
 from agents import DQN, DQNVanilla, DQNFixedTargets, DQNPrioritizedTargets, DQNDouble, EpsilonScheduler
@@ -7,9 +8,9 @@ def get_estimator(config_file):
         ["BaseEstimator", "BaseDuelingEstimator"], "[estimator] -> Option Not Implemented"
 
     if config_file['estimator'] == "BaseEstimator":
-        return BaseEstimator(config_file['window_size'], config_file['action_space']).to(DEVICE)
+        return BaseEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
     elif config_file['estimator'] == "BaseDuelingEstimator":
-        return BaseDuelingEstimator(config_file['window_size'], config_file['action_space']).to(DEVICE)
+        return BaseDuelingEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
 
     return None
 

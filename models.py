@@ -2,13 +2,13 @@ import torch.nn as nn
 import torch
 
 class BaseEstimator(nn.Module):
-    def __init__(self, state_size, action_space):
+    def __init__(self, state_size, number_of_features, action_space):
         super().__init__()
         self.state_size = state_size
         self.action_space = action_space
 
         self.model = nn.Sequential(
-            nn.Linear(state_size, 32),
+            nn.Linear(number_of_features * state_size, 32),
             nn.ReLU(),
             nn.Linear(32, 64),
             nn.ReLU(),
@@ -23,11 +23,11 @@ class BaseEstimator(nn.Module):
         return self.model(x)
 
 class BaseDuelingEstimator(nn.Module):
-    def __init__(self, state_size, action_space):
+    def __init__(self, state_size, number_of_features,action_space):
         super().__init__()
 
-        self.estimator_ = BaseEstimator(state_size, action_space)
-        self.adversarial_ = BaseEstimator(state_size, action_space)
+        self.estimator_ = BaseEstimator(state_size, number_of_features, action_space)
+        self.adversarial_ = BaseEstimator(state_size, number_of_features, action_space)
 
     def forward(self, x):
         x = x.view(x.size(0), -1)
@@ -36,4 +36,5 @@ class BaseDuelingEstimator(nn.Module):
         out_adv = self.adversarial_(x)
 
         out = out_est + out_adv - out_adv.mean()
+        
         return out

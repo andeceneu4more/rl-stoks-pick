@@ -30,3 +30,118 @@ Config File
 ======================================== Episode: 2, Train Profit: 360.625, Train Reward: 0.877
 ======================================== Episode: 2, Valid Profit: 0, Valid Reward: 0
 ======================================== Episode: 3/100 ========================================
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/10 ========================================
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/10 ========================================
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/10 ========================================
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/10 ========================================
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/10 ========================================
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/10 ========================================
+======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
+======================================== Episode: 1, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 2/10 ========================================
+======================================== Episode: 2, Train Profit: 360.625, Train Reward: 0.877
+======================================== Episode: 2, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 3/10 ========================================
+======================================== Episode: 3, Train Profit: 35.224, Train Reward: 0.53
+======================================== Episode: 3, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 4/10 ========================================
+======================================== Episode: 4, Train Profit: 1341.4, Train Reward: 1.905
+======================================== Episode: 4, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 5/10 ========================================
+======================================== Episode: 5, Train Profit: 1536.29, Train Reward: 2.048
+======================================== Episode: 5, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 6/10 ========================================
+======================================== Episode: 6, Train Profit: 395.476, Train Reward: 0.766
+======================================== Episode: 6, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 7/10 ========================================
+======================================== Episode: 7, Train Profit: 821.171, Train Reward: 1.272
+======================================== Episode: 7, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 8/10 ========================================
+======================================== Episode: 8, Train Profit: 930.808, Train Reward: 1.634
+======================================== Episode: 8, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 9/10 ========================================
+======================================== Episode: 9, Train Profit: 1400.06, Train Reward: 2.144
+======================================== Episode: 9, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 10/10 ========================================
+======================================== Episode: 10, Train Profit: 621.571, Train Reward: 1.34
+======================================== Episode: 10, Valid Profit: 0, Valid Reward: 0
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/10 ========================================
+======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
+======================================== Episode: 1, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 2/10 ========================================
+======================================== Episode: 2, Train Profit: 360.625, Train Reward: 0.877
+======================================== Episode: 2, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 3/10 ========================================
+======================================== Episode: 3, Train Profit: 35.224, Train Reward: 0.53
+======================================== Episode: 3, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 4/10 ========================================
+======================================== Episode: 4, Train Profit: 1341.4, Train Reward: 1.905
+======================================== Episode: 4, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 5/10 ========================================
+======================================== Episode: 5, Train Profit: 1536.29, Train Reward: 2.048
+======================================== Episode: 5, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 6/10 ========================================
+======================================== Episode: 6, Train Profit: 395.476, Train Reward: 0.766
+======================================== Episode: 6, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 7/10 ========================================
+======================================== Episode: 7, Train Profit: 821.171, Train Reward: 1.272
+======================================== Episode: 7, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 8/10 ========================================
+======================================== Episode: 8, Train Profit: 930.808, Train Reward: 1.634
+======================================== Episode: 8, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 9/10 ========================================
+======================================== Episode: 9, Train Profit: 1400.06, Train Reward: 2.144
+======================================== Episode: 9, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 10/10 ========================================
+======================================== Episode: 10, Train Profit: 621.571, Train Reward: 1.34
+======================================== Episode: 10, Valid Profit: 0, Valid Reward: 0
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseDuelingEstimator', 'features_used': ['close_-1_d', 'close_12_trix'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 10, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/10 ========================================
+======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
+======================================== Episode: 1, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 2/10 ========================================
+======================================== Episode: 2, Train Profit: 360.625, Train Reward: 0.877
+======================================== Episode: 2, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 3/10 ========================================
+======================================== Episode: 3, Train Profit: 35.224, Train Reward: 0.53
+======================================== Episode: 3, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 4/10 ========================================
+======================================== Episode: 4, Train Profit: 1341.4, Train Reward: 1.905
+======================================== Episode: 4, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 5/10 ========================================
+======================================== Episode: 5, Train Profit: 1536.29, Train Reward: 2.048
+======================================== Episode: 5, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 6/10 ========================================
+======================================== Episode: 6, Train Profit: 395.476, Train Reward: 0.766
+======================================== Episode: 6, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 7/10 ========================================
+======================================== Episode: 7, Train Profit: 821.171, Train Reward: 1.272
+======================================== Episode: 7, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 8/10 ========================================
+======================================== Episode: 8, Train Profit: 930.808, Train Reward: 1.634
+======================================== Episode: 8, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 9/10 ========================================
+======================================== Episode: 9, Train Profit: 1400.06, Train Reward: 2.144
+======================================== Episode: 9, Valid Profit: 693.07, Valid Reward: 693.07
+======================================== Episode: 10/10 ========================================
+======================================== Episode: 10, Train Profit: 621.571, Train Reward: 1.34
+======================================== Episode: 10, Valid Profit: 693.07, Valid Reward: 693.07

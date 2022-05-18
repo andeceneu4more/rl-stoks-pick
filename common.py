@@ -42,6 +42,22 @@ USER    = "andreig"
 
 seed_everything(seed = SEED)
 
+def normalize_features(current_day: list, next_day: list):
+
+    normalized_features = []
+    for i in range(len(current_day)):
+        normalized_feature = sigmoid(next_day[i] - current_day[i])
+        normalized_features.append(normalized_feature)
+        
+        # try:
+        #     normalized_feature = next_day[i] - current_day[i] / current_day[i]
+        # except ZeroDivisionError:
+        #     normalized_feature = next_day[i] - current_day[i]
+        # finally:
+        #     normalized_features.append(normalized_feature)
+
+    return normalized_features
+
 class EpsilonScheduler():
     def __init__(self, epsilon = 1.0, epsilon_final = 0.01, epsilon_decay = 0.995):
         self.epsilon       = epsilon
