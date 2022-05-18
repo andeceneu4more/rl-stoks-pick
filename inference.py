@@ -153,18 +153,11 @@ if __name__ == "__main__":
     pyfolio_backtesting(valid_account_values, valid_df, data_type="validation")
     pyfolio_backtesting(test_account_values, test_df, data_type="test")
 
-    # df_valid = pd.DataFrame(valid_profits, columns=["account_value"])
-    # df_test = pd.DataFrame(test_profits, columns=["account_value"])
+    # valid_actions = [0] * CFG['window_size'] + valid_actions[: -CFG['window_size']]
+    # test_actions  = [0] * CFG['window_size'] + test_actions[: -CFG['window_size']]
 
-    # os.makedirs('results', exist_ok=True)
-    # df_valid.to_csv(os.path.join('results', 'df_account_value_valid_daily_return.csv'), index=False)
-    # df_test.to_csv(os.path.join('results', 'df_account_value_test_daily_return.csv'), index=False)
+    path_to_images = f"images/{USER}/stage-{STAGE}"
+    os.makedirs(path_to_images, exist_ok=True)
 
-    # # valid_actions = [0] * CFG['window_size'] + valid_actions[: -CFG['window_size']]
-    # # test_actions  = [0] * CFG['window_size'] + test_actions[: -CFG['window_size']]
-
-    # path_to_images = f"images/{USER}/stage-{STAGE}"
-    # os.makedirs(path_to_images, exist_ok=True)
-
-    # draw_points(valid_data, valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
-    # draw_points(test_data,  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
+    draw_points(valid_data, valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
+    draw_points(test_data,  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
