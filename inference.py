@@ -5,7 +5,7 @@ from getters import get_estimator
 
 def test_fn(model, test_data, window_size):
     total_profit = 0
-    portfolio, rewards, profits = [], [], []
+    portfolio, rewards, account_values = [], [], []
     actions = []
 
     account_value = 10 ** 6
@@ -35,9 +35,9 @@ def test_fn(model, test_data, window_size):
         
         rewards.append(reward)
         actions.append(action)
-        profits.append(account_value)
+        account_values.append(account_value)
 
-    return rewards, total_profit, actions, profits
+    return rewards, total_profit, actions, account_values
 
 def draw_points(series, actions, data_type = "validation", savefig = None):
     plt.figure(figsize = (18, 9))
@@ -65,6 +65,56 @@ def draw_points(series, actions, data_type = "validation", savefig = None):
 
     plt.show()
     
+def pyfolio_backtesting(profits, df_original, data_type = "validation"):
+    def get_daily_return(df):
+        df['daily_return']=df.account_value.pct_change(1)
+        #df=df.dropna()
+        print('Sharpe: ',(252**0.5)*df['daily_return'].mean()/ df['daily_return'].std())
+
+        return df
+
+    def backtest_strat(df):
+        strategy_ret= df.copy()
+        strategy_ret['Date'] = pd.to_datetime(strategy_ret['Date'], errors='coerce')
+        strategy_ret.set_index('Date', drop = False, inplace = True)
+        # strategy_ret.index = strategy_ret.index.tz_localize('UTC')
+        del strategy_ret['Date']
+        ts = pd.Series(strategy_ret['daily_return'].values, index=strategy_ret.index)
+
+        return ts
+
+    df_account_value = pd.DataFrame(profits, columns=["account_value"])
+
+    PATH_TO_RESEULTS = f"results/{USER}/stage-{STAGE}/"
+    os.makedirs(PATH_TO_RESEULTS, exist_ok=True)
+
+    df_stocks = df_original.copy()
+    df_stocks = df_stocks.reset_index(drop=True)
+    df_stocks['daily_return'] = df_stocks['Adj_Close'].pct_change(1)
+
+    df_account_value = get_daily_return(df_account_value)
+    df_account_value['Date'] = df_stocks['Date']
+    
+    # stocks_strat = backtest_strat(df_stocks)
+    # account_value_strat = backtest_strat(df_account_value)
+
+    df_stocks.to_csv(os.path.join(PATH_TO_RESEULTS, f'df_stocks_{data_type}.csv'), index=False)
+    df_account_value.to_csv(os.path.join(PATH_TO_RESEULTS, f'df_account_value_{data_type}.csv'), index=False)
+
+    # try:
+    #     # backtest = pyfolio.create_full_tear_sheet(returns=account_value_strat,
+    #     #                                 benchmark_rets=stocks_strat, set_context=False)
+    #     # print(backtest)
+
+    #     with pyfolio.plotting.plotting_context(font_scale=1.1):
+    #         pyfolio.create_full_tear_sheet(returns=account_value_strat,
+    #                                         benchmark_rets=stocks_strat, set_context=False)
+    # except Exception as err:
+    #     #TODO: install pyfolio in a newly created env, with
+    #     # pip install git+https://github.com/quantopian/pyfolio
+    #     print(err)
+
+
 if __name__ == "__main__":
     # STAGE = 0
     # USER  = "andreig"
@@ -85,6 +135,10 @@ if __name__ == "__main__":
     model.eval()
 
     data       = pd.read_csv(PATH_TO_DATA)
+
+    valid_df = data[data['Split'] == 1]
+    test_df = data[data['Split'] == 2]
+
     data      = wrap(data)
 
     valid_data = [data[data['split'] == 1][CFG["features_used"]].values.tolist(), data[data['split'] == 1][CFG["target_used"]].tolist()]
@@ -93,15 +147,18 @@ if __name__ == "__main__":
     # valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
     # test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
     
-    valid_rewards, valid_profit, valid_actions, valid_profits = test_fn(model, valid_data, CFG['window_size'])
-    test_rewards,  test_profit,  test_actions, test_profits  = test_fn(model, test_data,  CFG['window_size'])
+    valid_rewards, valid_profit, valid_actions, valid_account_values = test_fn(model, valid_data, CFG['window_size'])
+    test_rewards,  test_profit,  test_actions, test_account_values  = test_fn(model, test_data,  CFG['window_size'])
 
-    df_valid = pd.DataFrame(valid_profits, columns=["account_value"])
-    df_test = pd.DataFrame(test_profits, columns=["account_value"])
+    pyfolio_backtesting(valid_account_values, valid_df, data_type="validation")
+    pyfolio_backtesting(test_account_values, test_df, data_type="test")
 
-    os.makedirs('results', exist_ok=True)
-    df_valid.to_csv(os.path.join('results', 'df_account_value_valid_daily_return.csv'), index=False)
-    df_test.to_csv(os.path.join('results', 'df_account_value_test_daily_return.csv'), index=False)
+    # df_valid = pd.DataFrame(valid_profits, columns=["account_value"])
+    # df_test = pd.DataFrame(test_profits, columns=["account_value"])
+
+    # os.makedirs('results', exist_ok=True)
+    # df_valid.to_csv(os.path.join('results', 'df_account_value_valid_daily_return.csv'), index=False)
+    # df_test.to_csv(os.path.join('results', 'df_account_value_test_daily_return.csv'), index=False)
 
     # # valid_actions = [0] * CFG['window_size'] + valid_actions[: -CFG['window_size']]
     # # test_actions  = [0] * CFG['window_size'] + test_actions[: -CFG['window_size']]
