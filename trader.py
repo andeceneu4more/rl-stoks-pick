@@ -2,7 +2,6 @@ from site import USER_BASE
 from common import *
 from getters import *
 import matplotlib.pyplot as plt
-from stockstats import StockDataFrame
 
 plt.style.use(["ggplot"])
 
@@ -19,7 +18,7 @@ GLOBAL_LOGGER = GlobalLogger(
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNFixedTargets",
-    "estimator"     : "BaseDuelingEstimator",
+    "estimator"     : "BaseEstimator",
 
     "features_used"  : ["close_-1_d", "close_12_trix", "rsi"], # for the moment, only the first in the list will be used
     "target_used"  : "adj_close",
@@ -37,7 +36,7 @@ CFG = {
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
     "batch_size"    : 32,
-    "n_episodes"    : 1000,
+    "n_episodes"    : 100,
 
     "replay_size"   : 10000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets

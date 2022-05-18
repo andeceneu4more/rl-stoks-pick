@@ -21,3 +21,12 @@ Config File
 ======================================== Episode: 1/1 ========================================
 ======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
 ======================================== Episode: 1, Valid Profit: 0, Valid Reward: 0
+Config File
+{'id': 11, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['close_-1_d', 'close_12_trix', 'rsi'], 'target_used': 'adj_close', 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 100, 'replay_size': 10000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/100 ========================================
+======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
+======================================== Episode: 1, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 2/100 ========================================
+======================================== Episode: 2, Train Profit: 360.625, Train Reward: 0.877
+======================================== Episode: 2, Valid Profit: 0, Valid Reward: 0
+======================================== Episode: 3/100 ========================================

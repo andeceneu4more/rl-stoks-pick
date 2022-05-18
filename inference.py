@@ -5,11 +5,16 @@ from getters import get_estimator
 
 def test_fn(model, test_data, window_size):
     total_profit = 0
-    portfolio, rewards = [], []    
+    portfolio, rewards, profits = [], [], []
     actions = []
 
-    for timestep, current_stock_price in enumerate(test_data):
-        state  = state_creator(test_data, timestep, window_size + 1)    
+    account_value = 10 ** 6
+
+    # for timestep, current_stock_price in enumerate(test_data):
+    features, stock_prices = test_data[0], test_data[1]
+    state_creator_param = features
+    for timestep, current_stock_price in enumerate(stock_prices):
+        state  = state_creator(state_creator_param, timestep, window_size + 1)    
         state  = torch.tensor(state).float().to(DEVICE)
         
         with torch.no_grad(): 
@@ -18,19 +23,21 @@ def test_fn(model, test_data, window_size):
         action = np.argmax(action[0].cpu().numpy())
         reward = 0
 
-        if action == 1: 
+        if action == 1: # Buying
             portfolio.append(current_stock_price)
             
-        elif action == 2 and len(portfolio) > 0:
+        elif action == 2 and len(portfolio) > 0: # Selling
             buy_price     = portfolio.pop(0)
             profit        = current_stock_price - buy_price
             reward        = max(profit, 0)
             total_profit += profit
+            account_value += profit
         
         rewards.append(reward)
         actions.append(action)
+        profits.append(account_value)
 
-    return rewards, total_profit, actions
+    return rewards, total_profit, actions, profits
 
 def draw_points(series, actions, data_type = "validation", savefig = None):
     plt.figure(figsize = (18, 9))
@@ -78,17 +85,29 @@ if __name__ == "__main__":
     model.eval()
 
     data       = pd.read_csv(PATH_TO_DATA)
-    valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
-    test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
+    data      = wrap(data)
+
+    valid_data = [data[data['split'] == 1][CFG["features_used"]].values.tolist(), data[data['split'] == 1][CFG["target_used"]].tolist()]
+    test_data = [data[data['split'] == 2][CFG["features_used"]].values.tolist(), data[data['split'] == 2][CFG["target_used"]].tolist()]
+
+    # valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
+    # test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
     
-    valid_rewards, valid_profit, valid_actions = test_fn(model, valid_data, CFG['window_size'])
-    test_rewards,  test_profit,  test_actions  = test_fn(model, test_data,  CFG['window_size'])
+    valid_rewards, valid_profit, valid_actions, valid_profits = test_fn(model, valid_data, CFG['window_size'])
+    test_rewards,  test_profit,  test_actions, test_profits  = test_fn(model, test_data,  CFG['window_size'])
 
-    # valid_actions = [0] * CFG['window_size'] + valid_actions[: -CFG['window_size']]
-    # test_actions  = [0] * CFG['window_size'] + test_actions[: -CFG['window_size']]
+    df_valid = pd.DataFrame(valid_profits, columns=["account_value"])
+    df_test = pd.DataFrame(test_profits, columns=["account_value"])
 
-    path_to_images = f"images/{USER}/stage-{STAGE}"
-    os.makedirs(path_to_images, exist_ok=True)
+    os.makedirs('results', exist_ok=True)
+    df_valid.to_csv(os.path.join('results', 'df_account_value_valid_daily_return.csv'), index=False)
+    df_test.to_csv(os.path.join('results', 'df_account_value_test_daily_return.csv'), index=False)
 
-    draw_points(valid_data, valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
-    draw_points(test_data,  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
+    # # valid_actions = [0] * CFG['window_size'] + valid_actions[: -CFG['window_size']]
+    # # test_actions  = [0] * CFG['window_size'] + test_actions[: -CFG['window_size']]
+
+    # path_to_images = f"images/{USER}/stage-{STAGE}"
+    # os.makedirs(path_to_images, exist_ok=True)
+
+    # draw_points(valid_data, valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
+    # draw_points(test_data,  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
