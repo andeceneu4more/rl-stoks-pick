@@ -40,8 +40,6 @@ def test_fn(model, test_data, window_size):
     return rewards, total_profit, actions, account_values
 
 def draw_points(series, actions, data_type = "validation", savefig = None):
-    # features, stock_prices = series[0], series[1]
-    # draw_points_param = stock_prices
     plt.figure(figsize = (18, 9))
     plt.plot(series, color = 'green')
     markers = ["", "d", "o"]   
@@ -87,8 +85,8 @@ def pyfolio_backtesting(profits, df_original, data_type = "validation"):
 
     df_account_value = pd.DataFrame(profits, columns=["account_value"])
 
-    PATH_TO_RESEULTS = f"results/{USER}/stage-{STAGE}/"
-    os.makedirs(PATH_TO_RESEULTS, exist_ok=True)
+    PATH_TO_RESULTS = f"results/{USER}/stage-{STAGE}/model-{MODEL}"
+    os.makedirs(PATH_TO_RESULTS, exist_ok=True)
 
     df_stocks = df_original.copy()
     df_stocks = df_stocks.reset_index(drop=True)
@@ -100,8 +98,8 @@ def pyfolio_backtesting(profits, df_original, data_type = "validation"):
     # stocks_strat = backtest_strat(df_stocks)
     # account_value_strat = backtest_strat(df_account_value)
 
-    df_stocks.to_csv(os.path.join(PATH_TO_RESEULTS, f'df_stocks_{data_type}.csv'), index=False)
-    df_account_value.to_csv(os.path.join(PATH_TO_RESEULTS, f'df_account_value_{data_type}.csv'), index=False)
+    df_stocks.to_csv(os.path.join(PATH_TO_RESULTS, f'df_stocks_{data_type}.csv'), index=False)
+    df_account_value.to_csv(os.path.join(PATH_TO_RESULTS, f'df_account_value_{data_type}.csv'), index=False)
 
     # try:
     #     # backtest = pyfolio.create_full_tear_sheet(returns=account_value_strat,
@@ -153,16 +151,13 @@ if __name__ == "__main__":
     test_rewards,  test_profit,  test_actions, test_account_values  = test_fn(model, test_data,  CFG['window_size'])
 
     pyfolio_backtesting(valid_account_values, valid_df, data_type="validation")
-    pyfolio_backtesting(test_account_values, test_df, data_type="test")
+    pyfolio_backtesting(test_account_values,  test_df,   data_type="test")
 
     # valid_actions = [0] * CFG['window_size'] + valid_actions[: -CFG['window_size']]
     # test_actions  = [0] * CFG['window_size'] + test_actions[: -CFG['window_size']]
 
     path_to_images = f"images/{USER}/stage-{STAGE}"
     os.makedirs(path_to_images, exist_ok=True)
-
-    # print(valid_df["Adj_Close"].tolist())
-    # print(valid_data[1])
     
-    draw_points(valid_df["Adj_Close"].tolist(), valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
-    draw_points(test_df["Adj_Close"].tolist(),  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
+    draw_points(valid_data[1], valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
+    draw_points(test_data[1],  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
