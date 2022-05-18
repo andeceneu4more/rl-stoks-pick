@@ -40,6 +40,8 @@ def test_fn(model, test_data, window_size):
     return rewards, total_profit, actions, account_values
 
 def draw_points(series, actions, data_type = "validation", savefig = None):
+    # features, stock_prices = series[0], series[1]
+    # draw_points_param = stock_prices
     plt.figure(figsize = (18, 9))
     plt.plot(series, color = 'green')
     markers = ["", "d", "o"]   
@@ -73,15 +75,15 @@ def pyfolio_backtesting(profits, df_original, data_type = "validation"):
 
         return df
 
-    def backtest_strat(df):
-        strategy_ret= df.copy()
-        strategy_ret['Date'] = pd.to_datetime(strategy_ret['Date'], errors='coerce')
-        strategy_ret.set_index('Date', drop = False, inplace = True)
-        # strategy_ret.index = strategy_ret.index.tz_localize('UTC')
-        del strategy_ret['Date']
-        ts = pd.Series(strategy_ret['daily_return'].values, index=strategy_ret.index)
+    # def backtest_strat(df):
+    #     strategy_ret= df.copy()
+    #     strategy_ret['Date'] = pd.to_datetime(strategy_ret['Date'], errors='coerce')
+    #     strategy_ret.set_index('Date', drop = False, inplace = True)
+    #     # strategy_ret.index = strategy_ret.index.tz_localize('UTC')
+    #     del strategy_ret['Date']
+    #     ts = pd.Series(strategy_ret['daily_return'].values, index=strategy_ret.index)
 
-        return ts
+    #     return ts
 
     df_account_value = pd.DataFrame(profits, columns=["account_value"])
 
@@ -159,5 +161,8 @@ if __name__ == "__main__":
     path_to_images = f"images/{USER}/stage-{STAGE}"
     os.makedirs(path_to_images, exist_ok=True)
 
-    draw_points(valid_data, valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
-    draw_points(test_data,  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
+    # print(valid_df["Adj_Close"].tolist())
+    # print(valid_data[1])
+    
+    draw_points(valid_df["Adj_Close"].tolist(), valid_actions, data_type = "validation", savefig = f"{path_to_images}/valid_actions_model_{MODEL}.png")
+    draw_points(test_df["Adj_Close"].tolist(),  test_actions,  data_type = "test"      , savefig = f"{path_to_images}/test_actions_model_{MODEL}.png")
