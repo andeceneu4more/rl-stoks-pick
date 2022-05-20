@@ -20,7 +20,7 @@ CFG = {
     "trader"        : "DQNFixedTargets",
     "estimator"     : "BaseEstimator",
 
-    "features_used"  : ["adj_close", "rsi"], # for the moment, only the first in the list will be used
+    "features_used"  : ["adj_close"], # for the moment, only the first in the list will be used
     "target_used"  : "adj_close",
     
     "optimizer"     : "AdamW",
@@ -38,7 +38,7 @@ CFG = {
     "batch_size"    : 32,
     "n_episodes"    : 1000,
 
-    "replay_size"   : 10000,
+    "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
 
     "prob_alpha"    : 0.6,                      # only in DQN with prioritized targets
@@ -124,11 +124,14 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
             if len(trader.memory) % batch_size == 0:
                 trader.batch_train(batch_size)
         else:
-            if CFG['trader'] in ["DQNFixedTargets", "DQNPrioritizedTargets", "DQNDouble"] \
-                and global_step % sync_target == 0:
-                trader.sync_target()
             if global_step % trader.replay_size == 0:
                 trader.batch_train(batch_size)
+            
+            if CFG['trader'] in ["DQNFixedTargets", "DQNPrioritizedTargets", "DQNDouble"] \
+                and global_step % sync_target == 0:
+                # ISSUE: if replay_size > sync_target
+                trader.sync_target()
+            
 
     return trader, np.mean(train_rewards), train_profit, global_step
 
