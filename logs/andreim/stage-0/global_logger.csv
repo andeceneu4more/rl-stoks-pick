@@ -1,0 +1,2 @@
+id,trader,estimator,features_used,target_used,optimizer,learning_rate,criterion,eps_scheduler,epsilon,epsilon_final,epsilon_decay,action_space,window_size,batch_size,n_episodes,replay_size,sync_steps,prob_alpha,beta_start,train_profit,valid_profit,train_reward,valid_reward,observation
+0,DQNPrioritizedTargets,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,1000,1000,0.6,0.4,-0.928,0,0.0,0.0,Use all features from features_used field

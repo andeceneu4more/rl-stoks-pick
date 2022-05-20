@@ -259,15 +259,18 @@ class DQNPrioritizedTargets(Agent):
     def sample_batch(self, batch_size):
         """ using formulae from the article/book it selects the memorized states in a specific order and returns the batch_weights
         """
-        prios = np.array(self.priorities)
+        replay_id = max(0, len(self.memory) - self.replay_size)
+        current_memory = self.memory[replay_id:]
+        current_priorities = self.priorities[replay_id:]
+
+        prios = np.array(current_priorities)
         probs = prios ** self.prob_alpha
         probs /= probs.sum()
 
-        indices = np.random.choice(len(self.memory), batch_size, p=probs)
-        samples = [self.memory[idx] for idx in indices]
+        indices = np.random.choice(self.replay_size, batch_size, p=probs)
+        samples = [current_memory[idx] for idx in indices]
 
-        total = len(self.memory)
-        weights = (total * probs[indices]) ** (-self.beta)
+        weights = (self.replay_size * probs[indices]) ** (-self.beta)
         weights /= weights.max()
         return samples, indices, weights
     
