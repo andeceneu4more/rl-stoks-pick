@@ -94,18 +94,16 @@ class BiGRUattentionEstimator(nn.Module):
         super().__init__()
         self.state_size = state_size
         self.action_space = action_space
-        self.size = number_of_features * self.state_size
-        hidden_size = 32
+        self.input_size = number_of_features
+        self.hidden_size = 16
         self.model = nn.Sequential(
-            nn.GRU(self.size, self.size, batch_first=False, bidirectional=True, dropout=0.3),
-            SelectItem(1),
-            nn.GRU(self.size, self.size, batch_first=False, bidirectional=True, dropout=0.3),
-            SelectItem(1),
-            #Attention(self.size, 10),
-            #nn.Flatten(),
-            nn.Linear(self.size, 32),
-            nn.ReLU(),
-            nn.Linear(32, 64),
+            nn.GRU(self.input_size, self.hidden_size, batch_first=True, bidirectional=True, dropout=0.3),
+            SelectItem(0),
+            nn.GRU(self.hidden_size * 2, self.hidden_size, batch_first=True, bidirectional=True, dropout=0.3),
+            SelectItem(0),
+            Attention(self.hidden_size * 2, self.state_size),
+
+            nn.Linear(self.hidden_size * 2, 64),
             nn.ReLU(),
             nn.Linear(64, 128),
             nn.ReLU(),
@@ -113,5 +111,4 @@ class BiGRUattentionEstimator(nn.Module):
         )
 
     def forward(self, x):
-        x = x.view(x.size(0), -1)
         return self.model(x)

@@ -20,7 +20,7 @@ CFG = {
     "trader"        : "DQNFixedTargets",
     "estimator"     : "BiGRUattentionEstimator",
 
-    "features_used"  : ["adj_close", "rsi"], # for the moment, only the first in the list will be used
+    "features_used"  : ["adj_close", "open"], # for the moment, only the first in the list will be used
     "target_used"  : "adj_close",
     
     "optimizer"     : "AdamW",
