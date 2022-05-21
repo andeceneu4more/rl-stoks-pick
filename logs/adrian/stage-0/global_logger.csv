@@ -1,2 +1,9 @@
 id,trader,estimator,features_used,target_used,optimizer,learning_rate,criterion,eps_scheduler,epsilon,epsilon_final,epsilon_decay,action_space,window_size,batch_size,n_episodes,replay_size,sync_steps,prob_alpha,beta_start,train_profit,valid_profit,train_reward,valid_reward,observation
-0,DQN,BaseEstimator,"['close_-1_d', 'close_12_trix', 'rsi']",adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,0.6,0.4,98.677,0,0.123,0.0,Baseline
+0,DQN,BaseEstimator,"['close_-1_d', 'close_12_trix', 'rsi']",adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,0.6,0.4,98.677,0.0,0.12300000000000001,0.0,Baseline
+1,DQN,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.995,3,10,32,1000,10000,1000,0.6,0.4,-16.624000000000002,0.0,0.124,0.0,Use all features from features_used field
+2,DQN,BaseEstimator,['adj_close'],adj_close,AdamW,0.001,MSELoss,EpsilonScheduler,1,0.01,0.9,3,10,32,1000,10000,1000,0.6,0.4,0.248,0.0,0.001,0.0,Use all features from features_used field
+3,DQN,BaseEstimator,['adj_close'],adj_close,AdamW,0.01,MSELoss,EpsilonScheduler,1,0.01,0.9,3,10,32,1000,10000,1000,0.6,0.4,164.72799999999995,0.0,0.189,0.0,Use all features from features_used field
+4,DQN,BaseEstimator,['adj_close'],adj_close,AdamW,0.0001,MSELoss,EpsilonScheduler,1,0.01,0.9,3,10,32,1000,10000,1000,0.6,0.4,86.10600000000002,58.815,0.174,0.767,Use all features from features_used field
+5,DQN,BaseEstimator,['adj_close'],adj_close,AdamW,1e-05,MSELoss,EpsilonScheduler,1,0.01,0.9,3,10,32,1000,10000,1000,0.6,0.4,0.57,5.348,0.035,0.079,Use all features from features_used field
+6,DQN,BaseEstimator,['adj_close'],adj_close,AdamW,2.9999999999999997e-05,MSELoss,EpsilonScheduler,1,0.01,0.9,3,10,32,1000,10000,5000,0.6,0.4,79.777,253.24099999999999,0.359,1.571,Use all features from features_used field
+7,DQN,BaseEstimator,['adj_close'],adj_close,AdamW,3e-05,MSELoss,EpsilonScheduler,1,0.01,0.9,3,10,32,5000,10000,1000,0.6,0.4,-13.893,264.213,0.205,1.758,Use all features from features_used field
