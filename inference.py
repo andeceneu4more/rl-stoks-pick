@@ -1,5 +1,4 @@
 from common  import *
-from models  import BaseEstimator
 from trader  import valid_fn, state_creator, CFG
 from getters import get_estimator 
 
