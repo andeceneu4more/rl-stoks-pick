@@ -1,5 +1,4 @@
 from common import *
-from models import BaseEstimator
 
 class Agent(ABC):
     def __init__(self, 
@@ -175,6 +174,8 @@ class DQNFixedTargets(Agent):
         self.model.train()
         self.optimizer.zero_grad()
 
+        print("States:",states.size())
+        print("Actions:",actions.unsqueeze(-1).size())
         state_action_probas = self.model(states).gather(1, actions.unsqueeze(-1))
         state_action_probas = state_action_probas.squeeze(-1)
 

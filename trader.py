@@ -18,7 +18,7 @@ GLOBAL_LOGGER = GlobalLogger(
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNFixedTargets",
-    "estimator"     : "BaseEstimator",
+    "estimator"     : "BiGRUattentionEstimator",
 
     "features_used"  : ["adj_close", "rsi"], # for the moment, only the first in the list will be used
     "target_used"  : "adj_close",
