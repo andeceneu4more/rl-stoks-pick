@@ -87,8 +87,7 @@ class BiGRUattentionEstimator(nn.Module):
         self.action_space = action_space
 
         self.model = nn.Sequential(
-            nn.Input(shape=(number_of_features * state_size, 32), name='main_input'),
-            nn.GRU(100, return_sequences = True, bidirectional=True),
+            nn.GRU(100, return_sequences = True, bidirectional=True, input_shape=(self.number_of_features * self.state_size, 32)),
             nn.Dropout(0.3),
             nn.GRU(100, return_sequences = True, bidirectional=True),
             nn.Dropout(0.3),
