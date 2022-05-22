@@ -5,7 +5,7 @@ from agents import DQN, DQNVanilla, DQNFixedTargets, DQNPrioritizedTargets, DQND
 
 def get_estimator(config_file):
     assert config_file["estimator"] in \
-        ["BaseEstimator", "BaseDuelingEstimator", "BiGRUattentionEstimator","CNNEstimator"], "[estimator] -> Option Not Implemented"
+        ["BaseEstimator", "BaseDuelingEstimator", "BiGRUAttentionEstimator", "BiGRUAttentionDuelingEstimator", "CNNEstimator", "CNNDuelingEstimator"], "[estimator] -> Option Not Implemented"
 
     if config_file['estimator'] == "BaseEstimator":
         return BaseEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
