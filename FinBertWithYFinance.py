@@ -17,10 +17,11 @@ def get_sentiment(symbol, filename, max_news=50):  # format yyyy-mm-dd
     tick = yf.Ticker(symbol)  # "MSFT"
     #tick = tick.history(start=date, end=date)
     results = tick.news#[:max_news]
-    results['providerPublishTime'] = datetime.fromtimestamp(results['providerPublishTime']).date()
+    for res in results:
+        res['providerPublishTime'] = datetime.fromtimestamp(res['providerPublishTime']).date().strftime('%Y-%m-%d')
     titles_by_date = dict()
     for res in results:
-        if res['providerPublishTime'] in res:
+        if res['providerPublishTime'] in titles_by_date:
             titles_by_date[res['providerPublishTime']].append(res['title'])
         else:
             titles_by_date[res['providerPublishTime']] = [res['title']]
