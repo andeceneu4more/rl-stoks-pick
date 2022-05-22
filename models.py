@@ -122,16 +122,21 @@ class CNNEstimator(nn.Module):
         self.input_size = number_of_features
         self.hidden_size = 32
         self.model = nn.Sequential(
-            nn.Conv1d(self.input_size, 50, 4, activation='relu'),
-            nn.MaxPool1d(pool_size=2),
-            nn.Conv1d(100, self.hidden_size , 3, activation='relu'),
-            nn.MaxPool1d(pool_size=2),
-            nn.Linear(self.hidden_size, 64),
-            nn.ReLU(),
-            nn.Linear(64, 128),
+            nn.Conv1d(self.input_size, 16, kernel_size=2, stride=1, padding=1),
+            nn.MaxPool1d(2),
+            #nn.Flatten(0,1),
+            nn.Conv1d(16, 64 , kernel_size=2, stride=1, padding=1),
+            nn.MaxPool1d(2),
+            nn.Conv1d(64, 128 , kernel_size=2, stride=1, padding=1),
+            nn.MaxPool1d(2),
+            nn.Flatten(),
+            nn.Linear(512, 128),
             nn.ReLU(),
             nn.Linear(128, self.action_space)
         )
 
     def forward(self, x):
-        return self.model(x)
+        x = torch.transpose(x, 0, 2)
+        x = torch.transpose(x, 0, 1)
+        print(x.size())
+        return torch.transpose(self.model(x),0,1)
