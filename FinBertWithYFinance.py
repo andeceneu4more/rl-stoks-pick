@@ -4,31 +4,46 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import yfinance as yf
 import pandas as pd
 import torch
+from os import listdir
+from os.path import isfile, join
 
 SEQ_LEN = 256
-MAX_NEWS = 50
-msft = yf.Ticker("MSFT")
-results = msft.news[:MAX_NEWS]
 
-print(results)
+def get_sentiment(symbol, filename, max_news = 50): #format yyyy-mm-dd
+    data = pd.read_csv(filename)
+    for i, row in data.iterrows():
+        date = row["Date"]
 
-tokenizer = AutoTokenizer.from_pretrained("ProsusAI/finbert")
-model = AutoModelForSequenceClassification.from_pretrained("ProsusAI/finbert")
+        tick = yf.Ticker(symbol) #"MSFT"
+        tick = tick.history(start=date, end = date)
+        results = tick.news[:max_news]
 
-titles = [res["title"] for res in results]
+        #print(results)
 
-ids = tokenizer(titles, max_length=SEQ_LEN, truncation=True, return_tensors='pt', padding=True)
+        tokenizer = AutoTokenizer.from_pretrained("ProsusAI/finbert")
+        model = AutoModelForSequenceClassification.from_pretrained("ProsusAI/finbert")
 
-outputs = model(**ids)
-predictions = torch.nn.functional.softmax(outputs.logits, dim=1)
-print(predictions)
+        titles = [res["title"] for res in results]
 
-positive = predictions[:, 0].tolist()
-negative = predictions[:, 1].tolist()
-neutral = predictions[:, 2].tolist()
+        ids = tokenizer(titles, max_length=SEQ_LEN, truncation=True, return_tensors='pt', padding=True)
 
-#table = {'Headline': titles, "Positive": positive, "Negative": negative, "Neutral": neutral}
-table = {"Positive": positive, "Negative": negative, "Neutral": neutral}
-df = pd.DataFrame(table, columns=["Positive", "Negative", "Neutral"]) #"Headline"
+        outputs = model(**ids)
+        predictions = torch.nn.functional.softmax(outputs.logits, dim=1)
+        #print(predictions)
 
-print(df.head(5))
+        positive = predictions[:, 0].tolist()
+        negative = predictions[:, 1].tolist()
+        neutral = predictions[:, 2].tolist()
+
+        #table = {'Headline': titles, "Positive": positive, "Negative": negative, "Neutral": neutral}
+        #table = {"Date":date,"Positive": positive, "Negative": negative}
+        #df = pd.DataFrame(table, columns=["Positive", "Negative", "Neutral"]) #"Headline"
+        df.at[i,'Positive'] = positive
+        df.at[i,'Negative'] = negative
+
+    name, extension = filename.split(".")
+    data.to_csv(name + "WithSentiment." + extension, index=False)
+
+for f in listdir("data"):
+    if isfile(join("data", f):
+        get_sentiment("AAPL",os.path.join("data",f))

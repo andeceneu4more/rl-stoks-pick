@@ -24,7 +24,7 @@ if __name__ == "__main__":
     data.to_csv(f"data/{COMPANY}_stocks_splits.csv")
 
     styles = ['', '', '']
-    colors = {0: 'green', 1: 'orange', 2: 'red'};
+    colors = {0: 'green', 1: 'orange', 2: 'red'}
 
     plt.figure(figsize = (10, 5))
     for idx, grp in data.groupby("Split"):
