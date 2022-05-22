@@ -8,7 +8,7 @@ plt.style.use(["ggplot"])
 # REFACTOR: moved them in the common.py
 # USER          = "andreig"
 # STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
-SAVE_TO_LOG     = False # change this to False if you don't want to save the experiment
+SAVE_TO_LOG     = True # change this to False if you don't want to save the experiment
 
 GLOBAL_LOGGER = GlobalLogger(
     path_to_global_logger = f'logs/{USER}/stage-{STAGE}/global_logger.csv',
@@ -38,7 +38,7 @@ CFG = {
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
     "batch_size"    : 32,
-    "n_episodes"    : 1,
+    "n_episodes"    : 10,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -277,6 +277,10 @@ def main():
     best_mean_reward = 0
     train_profits, valid_profits = [], [] 
     train_rewards, valid_rewards = [], []
+
+    output_train_profit, output_valid_profit = 0, 0
+    output_train_reward, output_valid_reward = 0, 0
+
     # Standard "epochs" iteration
     for episode in range(CFG['n_episodes']):
         logger.print(40 * "="+ f" Episode: {episode + 1}/{CFG['n_episodes']} " + 40 * "=")
@@ -297,6 +301,12 @@ def main():
         # Saving the best model based on the reward on the validation set
         if best_mean_reward < valid_reward:
             best_mean_reward = valid_reward
+
+            output_train_profit = train_profit
+            output_valid_profit = valid_profit
+            output_train_reward = train_reward
+            output_valid_reward = valid_reward
+
             if SAVE_TO_LOG:
                 # save as before
                 trader.save_model(
@@ -341,10 +351,10 @@ def main():
         )
     plt.show()
 
-    OUTPUTS['train_profit'] = RD(train_profit)
-    OUTPUTS['valid_profit'] = RD(valid_profit)
-    OUTPUTS['train_reward'] = RD(train_reward)
-    OUTPUTS['valid_reward'] = RD(valid_reward)
+    OUTPUTS['train_profit'] = RD(output_train_profit)
+    OUTPUTS['valid_profit'] = RD(output_valid_profit)
+    OUTPUTS['train_reward'] = RD(output_train_reward)
+    OUTPUTS['valid_reward'] = RD(output_valid_reward)
     GLOBAL_LOGGER.append(CFG, OUTPUTS)
 
 if __name__ == "__main__":
