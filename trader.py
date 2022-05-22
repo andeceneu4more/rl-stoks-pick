@@ -248,10 +248,6 @@ def state_creator(data, timestep, window_size):
     """ Generating Features for the estimators """
     starting_id = timestep - window_size + 1
 
-    # # TODO: use all features, not just the first in the list
-    # # data = np.squeeze(data)
-    # data = np.array(data)[:, 0]
-
     if starting_id >= 0:
         windowed_data = data[starting_id: timestep + 1]
     else:
@@ -261,10 +257,7 @@ def state_creator(data, timestep, window_size):
     
     state = []
     for i in range(len(windowed_data) - 1):
-        # state.append(sigmoid(windowed_data[i + 1] - windowed_data[i]))
         state.append(normalize_features(windowed_data[i + 1], windowed_data[i], CFG, SCALERS))
-    # for i in range(len(windowed_data) - 1):
-    #     state.append(windowed_data[i])
 
     return np.array([state])
 
@@ -274,7 +267,6 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
 
     # Standard "data" iteration
     # for timestep, current_stock_price in enumerate(train_data):
-    #     print(current_stock_price)
     features, stock_prices = train_data[0], train_data[1]
     state_creator_param = features
     for timestep, current_stock_price in enumerate(stock_prices):
