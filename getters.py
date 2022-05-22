@@ -1,6 +1,6 @@
 from distutils.command.config import config
 from common import *
-from models import BaseEstimator, BaseDuelingEstimator, BiGRUattentionEstimator
+from models import BaseEstimator, BaseDuelingEstimator, BiGRUattentionEstimator,CNNEstimator
 from agents import DQN, DQNVanilla, DQNFixedTargets, DQNPrioritizedTargets, DQNDouble, EpsilonScheduler
 
 def get_estimator(config_file):
@@ -14,7 +14,7 @@ def get_estimator(config_file):
     elif config_file['estimator'] == "BiGRUattentionEstimator":
         return BiGRUattentionEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
     elif config_file['estimator'] == "CNNEstimator":
-        return BiGRUattentionEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
+        return CNNEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
     return None
 
 def get_scheduler(config_file):
