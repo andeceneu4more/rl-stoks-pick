@@ -46,4 +46,4 @@ def get_sentiment(symbol, filename, max_news = 50): #format yyyy-mm-dd
 
 for f in listdir("data"):
     if isfile(join("data", f):
-        get_sentiment("AAPL",os.path.join("data",f))
+        get_sentiment(f.split("_")[0],os.path.join("data",f))
