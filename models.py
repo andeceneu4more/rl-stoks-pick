@@ -36,7 +36,6 @@ class BaseDuelingEstimator(nn.Module):
         out_adv = self.adversarial_(x)
 
         out = out_est + out_adv - out_adv.mean()
-        
         return out
 
 class Attention(nn.Module):
@@ -89,7 +88,7 @@ class SelectItem(nn.Module):
     def forward(self, inputs):
         return inputs[self.item_index]
 
-class BiGRUattentionEstimator(nn.Module):
+class BiGRUAttentionEstimator(nn.Module):
     def __init__(self, state_size, number_of_features, action_space):
         super().__init__()
         self.state_size = state_size
@@ -113,6 +112,42 @@ class BiGRUattentionEstimator(nn.Module):
     def forward(self, x):
         return self.model(x)
 
+class BiGRUAttentionDuelingEstimator(nn.Module):
+    def __init__(self, state_size, number_of_features, action_space):
+        super().__init__()
+        self.state_size = state_size
+        self.action_space = action_space
+        self.input_size = number_of_features
+        self.hidden_size = 16
+        self.backbone = nn.Sequential(
+            nn.GRU(self.input_size, self.hidden_size, batch_first=True, bidirectional=True, dropout=0.3),
+            SelectItem(0),
+            nn.GRU(self.hidden_size * 2, self.hidden_size, batch_first=True, bidirectional=True, dropout=0.3),
+            SelectItem(0),
+            Attention(self.hidden_size * 2, self.state_size),
+        )
+        self.fully_conected = nn.Sequential(
+            nn.Linear(self.hidden_size * 2, 64),
+            nn.ReLU(),
+            nn.Linear(64, 128),
+            nn.ReLU(),
+            nn.Linear(128, self.action_space)
+        )
+        self.adv_conected = nn.Sequential(
+            nn.Linear(self.hidden_size * 2, 64),
+            nn.ReLU(),
+            nn.Linear(64, 128),
+            nn.ReLU(),
+            nn.Linear(128, self.action_space)
+        )
+
+    def forward(self, x):
+        out_ = self.backbone(x)
+        out_est = self.fully_conected(out_)
+        out_adv = self.adv_conected(out_)
+        out = out_est + out_adv - out_adv.mean()
+        return out
+        
 
 class CNNEstimator(nn.Module):
     def __init__(self, state_size, number_of_features, action_space):
@@ -130,7 +165,6 @@ class CNNEstimator(nn.Module):
 
             nn.Conv1d(64, 128, kernel_size=2, stride=1, padding=1),
             nn.MaxPool1d(2),
-
         )
 
         self.linear = nn.Sequential(
@@ -139,17 +173,55 @@ class CNNEstimator(nn.Module):
             nn.Linear(128,64),
             nn.ReLU(),
             nn.Linear(64, self.action_space),
-
         )
 
-
     def forward(self,x):
-        #x = x.unsqueeze(1)
         x = torch.transpose(x,1,2)
         x = self.model(x)
-        # print(x.shape)
         x = x.view(x.size(0), -1)
-        # print(x.shape)
         x = self.linear(x)
-
         return x
+
+class CNNDuelingEstimator(nn.Module):
+    def __init__(self, state_size, number_of_features, action_space):
+        super().__init__()
+
+        self.state_size = state_size
+        self.action_space = action_space
+        self.input_size = number_of_features
+        self.backbone = nn.Sequential(
+            nn.Conv1d(number_of_features, 16, kernel_size=2, stride=1, padding=1),
+            nn.MaxPool1d(2),
+
+            nn.Conv1d(16, 64, kernel_size=2, stride=1, padding=1),
+            nn.MaxPool1d(2),
+
+            nn.Conv1d(64, 128, kernel_size=2, stride=1, padding=1),
+            nn.MaxPool1d(2),
+        )
+
+        self.fully_conected = nn.Sequential(
+            nn.Linear(256,128),
+            nn.ReLU(),
+            nn.Linear(128,64),
+            nn.ReLU(),
+            nn.Linear(64, self.action_space),
+        )
+
+        self.adv_conected = nn.Sequential(
+            nn.Linear(256,128),
+            nn.ReLU(),
+            nn.Linear(128,64),
+            nn.ReLU(),
+            nn.Linear(64, self.action_space),
+        )
+
+    def forward(self,x):
+        x = torch.transpose(x, 1, 2)
+        x = self.backbone(x)
+        x = x.view(x.size(0), -1)
+
+        out_est = self.fully_conected(x)
+        out_adv = self.adv_conected(x)
+        out = out_est + out_adv - out_adv.mean()
+        return out

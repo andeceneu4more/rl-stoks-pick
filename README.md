@@ -51,9 +51,14 @@ Instead of predicting real numbers for our target we instead want to predict one
 
 • Brief review of previous work concerning this problem (i.e., the 4-8 papers that you read)
  - https://arxiv.org/pdf/1511.05952.pdf (prioritized replay)
+ - https://arxiv.org/pdf/2203.02628.pdf (target network)
+ - https://arxiv.org/pdf/1511.06581.pdf (dueling dqn)
+ - https://arxiv.org/pdf/1509.06461.pdf (double dqn)
+ 
+
  - https://arxiv.org/pdf/2011.09607.pdf (FinRL)
- - https://arxiv.org/pdf/2203.02628.pdf (If we use truncation as well)
  - https://arxiv.org/pdf/1703.01327.pdf (if we use TD)
+
  - others from https://github.com/tuxedcat/PER-D3QN
 
 • Describe the technique that you developed

@@ -1,6 +1,6 @@
 from distutils.command.config import config
 from common import *
-from models import BaseEstimator, BaseDuelingEstimator, BiGRUattentionEstimator,CNNEstimator
+from models import BaseEstimator, BaseDuelingEstimator, BiGRUAttentionEstimator, BiGRUAttentionDuelingEstimator, CNNEstimator, CNNDuelingEstimator
 from agents import DQN, DQNVanilla, DQNFixedTargets, DQNPrioritizedTargets, DQNDouble, EpsilonScheduler
 
 def get_estimator(config_file):
@@ -11,10 +11,14 @@ def get_estimator(config_file):
         return BaseEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
     elif config_file['estimator'] == "BaseDuelingEstimator":
         return BaseDuelingEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
-    elif config_file['estimator'] == "BiGRUattentionEstimator":
-        return BiGRUattentionEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
+    elif config_file['estimator'] == "BiGRUAttentionEstimator":
+        return BiGRUAttentionEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
+    elif config_file['estimator'] == "BiGRUAttentionDuelingEstimator":
+        return BiGRUAttentionDuelingEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
     elif config_file['estimator'] == "CNNEstimator":
         return CNNEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
+    elif config_file['estimator'] == "CNNDuelingEstimator":
+        return CNNDuelingEstimator(config_file['window_size'], len(config_file["features_used"]), config_file['action_space']).to(DEVICE)
     return None
 
 def get_scheduler(config_file):
