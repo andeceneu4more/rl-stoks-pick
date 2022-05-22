@@ -148,6 +148,7 @@ if __name__ == "__main__":
     
     valid_rewards, valid_profit, valid_actions, valid_account_values = test_fn(model, valid_data, CFG['window_size'])
     test_rewards,  test_profit,  test_actions, test_account_values  = test_fn(model, test_data,  CFG['window_size'])
+    print(f"Finished with valid_profit = {valid_profit} and test_profit = {test_profit}")
 
     pyfolio_backtesting(valid_account_values, valid_df, data_type="validation")
     pyfolio_backtesting(test_account_values,  test_df,   data_type="test")
