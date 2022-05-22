@@ -42,19 +42,24 @@ USER    = "andreig"
 
 seed_everything(seed = SEED)
 
-def normalize_features(current_day: list, next_day: list):
+def normalize_features(current_day: list, next_day: list, config_file, scalers):
+    # assert config_file["normalizer"] in \
+    #     ["sigmoid", "percent", "minmax"], "[normalizer] -> Option Not Implemented"
 
     normalized_features = []
     for i in range(len(current_day)):
-        normalized_feature = sigmoid(next_day[i] - current_day[i])
+        if config_file["normalizer"][i] == "sigmoid":
+            normalized_feature = sigmoid(next_day[i] - current_day[i])
+        elif config_file["normalizer"][i] == "percent":
+            try:
+                normalized_feature = next_day[i] - current_day[i] / current_day[i]
+            except ZeroDivisionError:
+                normalized_feature = next_day[i] - current_day[i]
+        elif config_file["normalizer"][i] == "minmax":
+            scaler = scalers[config_file["features_used"][i]]
+            normalized_feature = scaler.transform([[next_day[i] - current_day[i]]]).squeeze(0).squeeze(0)
+
         normalized_features.append(normalized_feature)
-        
-        # try:
-        #     normalized_feature = next_day[i] - current_day[i] / current_day[i]
-        # except ZeroDivisionError:
-        #     normalized_feature = next_day[i] - current_day[i]
-        # finally:
-        #     normalized_features.append(normalized_feature)
 
     return normalized_features
 

@@ -8,7 +8,7 @@ plt.style.use(["ggplot"])
 # REFACTOR: moved them in the common.py
 # USER          = "andreig"
 # STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
-SAVE_TO_LOG     = True # change this to False if you don't want to save the experiment
+SAVE_TO_LOG     = False # change this to False if you don't want to save the experiment
 
 GLOBAL_LOGGER = GlobalLogger(
     path_to_global_logger = f'logs/{USER}/stage-{STAGE}/global_logger.csv',
@@ -18,10 +18,12 @@ GLOBAL_LOGGER = GlobalLogger(
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNFixedTargets",
-    "estimator"     : "BiGRUattentionEstimator",
+    "estimator"     : "BaseEstimator",
 
-    "features_used"  : ["adj_close"], # for the moment, only the first in the list will be used
-    "target_used"  : "adj_close",
+    "features_used" : ["adj_close", "rsi"],
+    "target_used"   : "adj_close",
+
+    "normalizer"    : ["sigmoid", "minmax"], # same ln as "features_used"; each feature with its normalizer
     
     "optimizer"     : "AdamW",
     "learning_rate" : 0.001,
@@ -36,7 +38,7 @@ CFG = {
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
     "batch_size"    : 32,
-    "n_episodes"    : 1000,
+    "n_episodes"    : 1,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -53,6 +55,10 @@ OUTPUTS = {
     "train_reward": "NA",
     "valid_reward": "NA",
     "observation" : "Use all features from features_used field" # This field should be used as a comment in GloablLogger.csv
+}
+
+SCALERS = {
+
 }
 
 def state_creator(data, timestep, window_size):
@@ -73,7 +79,7 @@ def state_creator(data, timestep, window_size):
     state = []
     for i in range(len(windowed_data) - 1):
         # state.append(sigmoid(windowed_data[i + 1] - windowed_data[i]))
-        state.append(normalize_features(windowed_data[i + 1], windowed_data[i]))
+        state.append(normalize_features(windowed_data[i + 1], windowed_data[i], CFG, SCALERS))
     # for i in range(len(windowed_data) - 1):
     #     state.append(windowed_data[i])
 
@@ -179,10 +185,22 @@ def main():
     data       = pd.read_csv(PATH_TO_DATA)
     data      = wrap(data)
 
-    train_data = [data[data['split'] == 0][CFG["features_used"]].values.tolist(), data[data['split'] == 0][CFG["target_used"]].tolist()]
-    valid_data = [data[data['split'] == 1][CFG["features_used"]].values.tolist(), data[data['split'] == 1][CFG["target_used"]].tolist()]
-    test_data = [data[data['split'] == 2][CFG["features_used"]].values.tolist(), data[data['split'] == 2][CFG["target_used"]].tolist()]
-    
+    train_data = [data[data['split'] == 0][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 0][CFG["target_used"]].fillna(0).tolist()]
+    valid_data = [data[data['split'] == 1][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 1][CFG["target_used"]].fillna(0).tolist()]
+    test_data = [data[data['split'] == 2][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 2][CFG["target_used"]].fillna(0).tolist()]
+
+    # Train MinMaxScaler on data if it will be used in normalizer
+    if 'minmax' in CFG['normalizer']:
+        from sklearn.preprocessing import MinMaxScaler
+
+        for idx, elem in enumerate(CFG['normalizer']):
+            if elem == 'minmax':
+                scaler = MinMaxScaler()
+                scaler.fit(np.array(train_data[0])[:, idx].reshape(-1, 1))
+
+                SCALERS[CFG["features_used"][idx]] = scaler
+                # print(np.array(train_data[0])[:, idx])
+
 
     # valid_data = data[data['split'] == 1][["adj_close"]].values.tolist()
     # test_data  = data[data['split'] == 2][["adj_close"]].values.tolist()

@@ -145,3 +145,30 @@ Config File
 ======================================== Episode: 10/10 ========================================
 ======================================== Episode: 10, Train Profit: 621.571, Train Reward: 1.34
 ======================================== Episode: 10, Valid Profit: 693.07, Valid Reward: 693.07
+Config File
+{'id': 18, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['adj_close', 'rsi'], 'target_used': 'adj_close', 'normalizer': ['sigmoid', 'minmax'], 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1, 'replay_size': 1000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/1 ========================================
+Config File
+{'id': 18, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['adj_close', 'rsi'], 'target_used': 'adj_close', 'normalizer': ['sigmoid', 'minmax'], 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1, 'replay_size': 1000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/1 ========================================
+Config File
+{'id': 18, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['adj_close', 'rsi'], 'target_used': 'adj_close', 'normalizer': ['sigmoid', 'minmax'], 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1, 'replay_size': 1000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/1 ========================================
+Config File
+{'id': 18, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['adj_close', 'rsi'], 'target_used': 'adj_close', 'normalizer': ['sigmoid', 'minmax'], 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1, 'replay_size': 1000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/1 ========================================
+======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
+======================================== Episode: 1, Valid Profit: 0, Valid Reward: 0
+Config File
+{'id': 18, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['adj_close', 'rsi'], 'target_used': 'adj_close', 'normalizer': ['sigmoid', 'minmax'], 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1, 'replay_size': 1000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/1 ========================================
+Config File
+{'id': 18, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['adj_close', 'rsi'], 'target_used': 'adj_close', 'normalizer': ['sigmoid', 'minmax'], 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1, 'replay_size': 1000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/1 ========================================
+======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
+======================================== Episode: 1, Valid Profit: 0, Valid Reward: 0
+Config File
+{'id': 18, 'trader': 'DQNFixedTargets', 'estimator': 'BaseEstimator', 'features_used': ['adj_close', 'rsi'], 'target_used': 'adj_close', 'normalizer': ['sigmoid', 'minmax'], 'optimizer': 'AdamW', 'learning_rate': 0.001, 'criterion': 'MSELoss', 'eps_scheduler': 'EpsilonScheduler', 'epsilon': 1, 'epsilon_final': 0.01, 'epsilon_decay': 0.995, 'action_space': 3, 'window_size': 10, 'batch_size': 32, 'n_episodes': 1, 'replay_size': 1000, 'sync_steps': 1000, 'prob_alpha': 0.6, 'beta_start': 0.4}
+======================================== Episode: 1/1 ========================================
+======================================== Episode: 1, Train Profit: 2299.266, Train Reward: 2.95
+======================================== Episode: 1, Valid Profit: 0, Valid Reward: 0
