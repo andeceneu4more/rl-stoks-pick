@@ -112,3 +112,26 @@ class BiGRUattentionEstimator(nn.Module):
 
     def forward(self, x):
         return self.model(x)
+
+
+class CNNEstimator(nn.Module):
+    def __init__(self, state_size, number_of_features, action_space):
+        super().__init__()
+        self.state_size = state_size
+        self.action_space = action_space
+        self.input_size = number_of_features
+        self.hidden_size = 32
+        self.model = nn.Sequential(
+            nn.Conv1d(self.input_size, 50, 4, activation='relu'),
+            nn.MaxPool1d(pool_size=2),
+            nn.Conv1d(100, self.hidden_size , 3, activation='relu'),
+            nn.MaxPool1d(pool_size=2),
+            nn.Linear(self.hidden_size, 64),
+            nn.ReLU(),
+            nn.Linear(64, 128),
+            nn.ReLU(),
+            nn.Linear(128, self.action_space)
+        )
+
+    def forward(self, x):
+        return self.model(x)
