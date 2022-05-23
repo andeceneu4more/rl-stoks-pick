@@ -201,15 +201,15 @@ GLOBAL_LOGGER = GlobalLogger(
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNFixedTargets",
-    "estimator"     : "BaseEstimator",
+    "estimator"     : "BiGRUAttentionDuelingEstimator",
 
     "features_used" : ["adj_close", "close_delta", "rsi_6", "cci_10", "atr_13", "stochrsi_6", "rsv_6", "middle_10_trix", "middle_10_tema", "vr_6", "high_5_sma", "high_5_mstd", "high_5_mvar"],
     "target_used"   : "adj_close",
 
-    "normalizer"    : ["percent", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax","minmax"], # same ln as "features_used"; each feature with its normalizer
+    "normalizer"    : ["percent", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "softmax", "minmax", "minmax", "minmax"], # same ln as "features_used"; each feature with its normalizer
     
     "optimizer"     : "AdamW",
-    "learning_rate" : 0.001,
+    "learning_rate" : 0.0005,
     
     "criterion"     : "MSELoss",
 
@@ -221,7 +221,7 @@ CFG = {
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
     "batch_size"    : 32,
-    "n_episodes"    : 1,
+    "n_episodes"    : 100,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -239,7 +239,6 @@ OUTPUTS = {
     "valid_reward": "NA",
     "observation" : "Use all features from features_used field" # This field should be used as a comment in GloablLogger.csv
 }
-pdb.set_trace()
 
 SCALERS = {
 
