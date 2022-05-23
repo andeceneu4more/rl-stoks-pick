@@ -15,6 +15,189 @@ GLOBAL_LOGGER = GlobalLogger(
     save_to_log = SAVE_TO_LOG
 )
 
+"""
+    https://pypi.org/project/stockstats/
+
+    How to set "features_used"
+
+
+    General rules {
+
+        Retrieve the symbol with 2 arguments ( <columnName>_<windowSize>_<statistics> )
+            -> 5 periods simple moving average of the high price: "high_5_sma"
+            -> 10 periods exponential moving average of the close: "close_10_ema"
+            -> 1 period delta of the high price: "high_-1_d" The - symbol stands for looking backwards.
+
+        Retrieve the symbol with 1 arguments ( <statistics>_<windowSize> )
+            -> 6 periods RSI: "rsi_6"
+            -> 10 periods CCI: "cci_10"
+            -> 13 periods ATR: "atr_13"
+
+    }
+
+
+    Change of the Close
+        -> "change" is the change of the close price in percentage.
+
+    Delta of Periods ( <column>_<window>_d or <column>_delta as a shortcut to <column>_-1_d )
+        -> "close_-1_d" retrieves the close price delta between current and prev. period.
+        -> "close_delta" is the same as "close_-1_d"
+        -> "high_2_d" retrieves the high price delta between current and 2 days later
+
+    Shift Periods
+        Shift the column backward or forward. It takes 2 parameters:
+            <> the name of the column to shift
+            <> periods to shift, can be negative
+
+            Example:
+                In [15]: df[['close', 'close_-1_s', 'close_2_s']]
+                Out[15]:
+                          close    close_-1_s  close_2_s
+                date
+                20040817  11.20       11.20      10.53
+                20040818  10.29       11.20      10.55
+                20040819  10.53       10.29      10.10
+                20040820  10.55       10.53      10.25
+
+    RSI - Relative Strength Index (https://en.wikipedia.org/wiki/Relative_strength_index)
+        RSI chart the current and historical strength or weakness of a stock. It takes a window parameter.
+
+        -> "rsi" 14 periods RSI
+        -> "rsi_6" 6 periods RSI
+
+    Stochastic RSI (https://www.investopedia.com/terms/s/stochrsi.asp)
+        Stochastic RSI gives traders an idea of whether the current RSI value is overbought or oversold. It takes a window parameter.
+
+        Examples:
+            -> "stochrsi" retrieve the Stochastic RSI of 14 periods
+            -> "stochrsi_6" retrieve the Stochastic RSI of 6 periods
+
+    Log Return of the Close (https://en.wikipedia.org/wiki/Rate_of_return)
+        Logarithmic return = ln( close / last close)
+
+        From wiki:
+            For example, if a stock is priced at 3.570 USD per share at the close on one day, and at 3.575 USD per share 
+            at the close the next day, then the logarithmic return is: ln(3.575/3.570) = 0.0014, or 0.14%.
+
+        -> "log-ret" access this column.
+
+    RSV - Raw Stochastic Value
+        RSV is essential for calculating KDJ. It takes a window parameter.
+
+        From wiki:
+            KDJ indicator is a technical indicator used to analyze and predict changes in stock trends and 
+            price patterns in a traded asset. KDJ indicator is otherwise known as the random index. 
+            It is a very practical technical indicator which is most commonly used in market trend analysis of short-term stock.
+
+        -> "rsv" or "rsv_6" to access it.
+
+    SMMA - Smoothed Moving Average
+        It takes two parameters, column and window.
+
+        For example, use "close_7_smma'] to retrieve the 7 periods smoothed moving average of the close price.
+
+    TRIX - Triple Exponential Average (https://www.investopedia.com/articles/technical/02/092402.asp)
+        The triple exponential average is used to identify oversold and overbought markets.
+
+        The algorithm is:
+
+            TRIX = (TripleEMA - LastTripleEMA) -  * 100 / LastTripleEMA
+            TripleEMA = EMA of EMA of EMA
+            LastTripleEMA =  TripleEMA of the last period
+
+        It takes two parameters, column and window. By default, the column is close, the window is 12.
+
+
+        Examples:
+
+            -> "trix" stands for 12 periods Trix for the close price.
+            -> "middle_10_trix" stands for the 10 periods Trix for the typical(middle) price.
+
+    TEMA - Another Triple Exponential Average (https://www.forextraders.com/forex-education/forex-technical-analysis/triple-exponential-moving-average-the-tema-indicator/)
+        Tema is another implementation for the triple exponential moving average.
+
+        TEMA=(3 x EMA) - (3 x EMA of EMA) + (EMA of EMA of EMA)
+
+        It takes two parameters, column and window. By default, the column is close, the window is 5.
+
+        Examples:
+
+            "tema" stands for 12 periods TEMA for the close price.
+            "middle_10_tema" stands for the 10 periods TEMA for the typical(middle) price.
+
+    VR - Volume Variation Index (https://help.eaglesmarkets.com/hc/en-us/articles/900002867026-Summary-of-volume-variation-index)
+        It is the strength index of trading volume.
+
+        Examples:
+
+            "vr" retrieves the 26 periods VR.
+            "vr_6" retrieves the 6 periods VR.
+
+    Typical Price (https://en.wikipedia.org/wiki/Typical_price)
+        It's the average of high, low and close.
+
+            -> "middle" access this value.
+
+    Simple Moving Average (https://www.investopedia.com/terms/m/mean.asp)
+        Follow the pattern <columnName>_<window>_sma to retrieve simple moving average.
+
+        -> "high_5_sma" 5 periods simple moving average of the high price
+
+    Moving Standard Deviation (https://www.investopedia.com/terms/s/standarddeviation.asp)
+        Follow the pattern <columnName>_<window>_mstd to retrieve the moving STD.
+
+        -> "high_5_mstd" 5 periods moving standard deviation of the high price
+
+    Moving Variance (https://www.investopedia.com/terms/v/variance.asp)
+        Follow the pattern <columnName>_<window>_mvar to retrieve the moving VAR.
+
+        -> "high_5_mvar" 5 periods moving variance of the high price
+
+    Volume Weighted Moving Average (https://www.investopedia.com/articles/trading/11/trading-with-vwap-mvwap.asp)
+        It's the moving average weighted by volume.
+
+        Examples:
+
+        -> "vwma" retrieves the 14 periods VWMA
+        -> "vwma_6" retrieves the 6 periods VWMA
+
+    CHOP - Choppiness Index (https://www.tradingview.com/education/choppinessindex/)
+        The Choppiness Index determines if the market is choppy.
+
+        It has a parameter for window size. The default window is 14. Change it with StockDataFrame.CHOP.
+
+        Examples:
+
+        -> "chop" retrieves the 14 periods CHOP
+        -> "chop_6" retrieves the 6 periods CHOP
+
+    MFI - Money Flow Index (https://www.investopedia.com/terms/m/mfi.asp)
+        The Money Flow Index identifies overbought or oversold signals in an asset.
+
+        It has a parameter for window size. The default window is 14. Change it with StockDataFrame.MFI.
+
+        Examples:
+
+        -> "mfi" retrieves the 14 periods MFI
+        -> "mfi_6" retrieves the 6 periods MFI
+
+    KAMA - Kaufman's Adaptive Moving Average (https://school.stockcharts.com/doku.php?id=technical_indicators:kaufman_s_adaptive_moving_average)
+        Kaufman's Adaptive Moving Average is designed to account for market noise or volatility.
+
+        It has 2 optional parameter and 2 required parameter
+
+        fast - optional, the parameter for fast EMA smoothing, default to 5
+        slow - optional, the parameter for slow EMA smoothing, default to 34
+        column - required, the column to calculate
+        window - required, rolling window size
+
+        Examples:
+
+        -> "close_10_kama_2_30" retrieves 10 periods KAMA of the close price with fast = 2 and slow = 30
+        -> "close_2_kama" retrieves 2 periods KAMA of the close price
+
+    """
+
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNFixedTargets",
@@ -38,7 +221,7 @@ CFG = {
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
     "batch_size"    : 32,
-    "n_episodes"    : 10,
+    "n_episodes"    : 1,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -65,10 +248,6 @@ def state_creator(data, timestep, window_size):
     """ Generating Features for the estimators """
     starting_id = timestep - window_size + 1
 
-    # # TODO: use all features, not just the first in the list
-    # # data = np.squeeze(data)
-    # data = np.array(data)[:, 0]
-
     if starting_id >= 0:
         windowed_data = data[starting_id: timestep + 1]
     else:
@@ -78,10 +257,7 @@ def state_creator(data, timestep, window_size):
     
     state = []
     for i in range(len(windowed_data) - 1):
-        # state.append(sigmoid(windowed_data[i + 1] - windowed_data[i]))
         state.append(normalize_features(windowed_data[i + 1], windowed_data[i], CFG, SCALERS))
-    # for i in range(len(windowed_data) - 1):
-    #     state.append(windowed_data[i])
 
     return np.array([state])
 
@@ -91,7 +267,6 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
 
     # Standard "data" iteration
     # for timestep, current_stock_price in enumerate(train_data):
-    #     print(current_stock_price)
     features, stock_prices = train_data[0], train_data[1]
     state_creator_param = features
     for timestep, current_stock_price in enumerate(stock_prices):
