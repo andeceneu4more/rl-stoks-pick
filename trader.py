@@ -15,12 +15,7 @@ GLOBAL_LOGGER = GlobalLogger(
     save_to_log = SAVE_TO_LOG
 )
 
-CFG = {
-    "id"            : GLOBAL_LOGGER.get_version_id(),
-    "trader"        : "DQNFixedTargets",
-    "estimator"     : "BaseEstimator",
-
-    """
+"""
     https://pypi.org/project/stockstats/
 
     How to set "features_used"
@@ -203,6 +198,11 @@ CFG = {
 
     """
 
+CFG = {
+    "id"            : GLOBAL_LOGGER.get_version_id(),
+    "trader"        : "DQNFixedTargets",
+    "estimator"     : "BaseEstimator",
+
     "features_used" : ["adj_close", "rsi"],
     "target_used"   : "adj_close",
 
@@ -221,7 +221,7 @@ CFG = {
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
     "batch_size"    : 32,
-    "n_episodes"    : 10,
+    "n_episodes"    : 1,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
