@@ -203,10 +203,10 @@ CFG = {
     "trader"        : "DQNFixedTargets",
     "estimator"     : "BaseEstimator",
 
-    "features_used" : ["adj_close", "rsi"],
+    "features_used" : ["adj_close", "close_delta", "rsi_6", "cci_10", "atr_13", "stochrsi_6", "rsv_6", "middle_10_trix", "middle_10_tema", "vr_6", "high_5_sma", "high_5_mstd", "high_5_mvar"],
     "target_used"   : "adj_close",
 
-    "normalizer"    : ["sigmoid", "minmax"], # same ln as "features_used"; each feature with its normalizer
+    "normalizer"    : ["percent", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax","minmax"], # same ln as "features_used"; each feature with its normalizer
     
     "optimizer"     : "AdamW",
     "learning_rate" : 0.001,
@@ -239,6 +239,7 @@ OUTPUTS = {
     "valid_reward": "NA",
     "observation" : "Use all features from features_used field" # This field should be used as a comment in GloablLogger.csv
 }
+pdb.set_trace()
 
 SCALERS = {
 
