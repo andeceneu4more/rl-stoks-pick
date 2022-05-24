@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 plt.style.use(["ggplot"])
 
 # REFACTOR: moved them in the common.py
-# USER          = "andreig"
-# STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
+USER          = "andreim"
+STAGE         = 0 # if we change the structure of the GlobalLogger.csv we increase the stage number
 SAVE_TO_LOG     = True # change this to False if you don't want to save the experiment
 
 GLOBAL_LOGGER = GlobalLogger(
@@ -198,10 +198,11 @@ GLOBAL_LOGGER = GlobalLogger(
 
     """
 
+# BiGRUAttentionDuelingEstimator 7-10
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
     "trader"        : "DQNFixedTargets",
-    "estimator"     : "BiGRUAttentionDuelingEstimator",
+    "estimator"     : "BaseDuelingEstimator",
 
     "features_used" : ["adj_close", "close_delta", "rsi_6", "cci_10", "atr_13", "stochrsi_6", "rsv_6", "middle_10_trix", "middle_10_tema", "vr_6", "high_5_sma", "high_5_mstd", "high_5_mvar"],
     "target_used"   : "adj_close",
@@ -209,7 +210,7 @@ CFG = {
     "normalizer"    : ["percent", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "minmax", "softmax", "minmax", "minmax", "minmax"], # same ln as "features_used"; each feature with its normalizer
     
     "optimizer"     : "AdamW",
-    "learning_rate" : 0.0005,
+    "learning_rate" : 0.001,
     
     "criterion"     : "MSELoss",
 
@@ -220,8 +221,8 @@ CFG = {
 
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
-    "batch_size"    : 32,
-    "n_episodes"    : 100,
+    "batch_size"    : 128,
+    "n_episodes"    : 200,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -287,8 +288,8 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
         elif action == 2 and len(trader.portfolio) > 0: # Selling
             buy_price     = trader.portfolio.pop(0)
             profit        = current_stock_price - buy_price
-            reward        = max(profit, 0)
-            train_profit += profit
+            reward        = profit
+            train_profit += max(profit, 0)
             # print(f"AI Trader sold: {data[t]}, Profit: {profit}")
         
         # The penultimate element is the last valid one 

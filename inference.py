@@ -115,9 +115,9 @@ def pyfolio_backtesting(profits, df_original, data_type = "validation"):
 
 
 if __name__ == "__main__":
-    # STAGE = 0
-    # USER  = "andreig"
-    MODEL   = 6
+    STAGE = 0
+    USER  = "andreim"
+    MODEL   = 9
 
     model = get_estimator(CFG)
 
