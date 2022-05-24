@@ -2,7 +2,7 @@ from common  import *
 from trader  import valid_fn, state_creator, CFG
 from getters import get_estimator 
 
-def test_fn(model, test_data, window_size):
+def test_fn(model, test_data, window_size, scalers):
     total_profit = 0
     portfolio, rewards, account_values = [], [], []
     actions = []
@@ -13,7 +13,7 @@ def test_fn(model, test_data, window_size):
     features, stock_prices = test_data[0], test_data[1]
     state_creator_param = features
     for timestep, current_stock_price in enumerate(stock_prices):
-        state  = state_creator(state_creator_param, timestep, window_size + 1)    
+        state  = state_creator(state_creator_param, timestep, window_size + 1, scalers)    
         state  = torch.tensor(state).float().to(DEVICE)
         
         with torch.no_grad(): 
@@ -141,15 +141,21 @@ if __name__ == "__main__":
     data      = wrap(data)
 
     features = list(CFG["features_used"].keys())
-    
-    valid_data = [data[data['split'] == 1][features].values.tolist(), data[data['split'] == 1][CFG["target_used"]].tolist()]
-    test_data = [data[data['split'] == 2][features].values.tolist(), data[data['split'] == 2][CFG["target_used"]].tolist()]
+    normalizers = list(CFG["features_used"].values())
+
+    train_data = [data[data['split'] == 0][features].fillna(0).values.tolist(), data[data['split'] == 0][CFG["target_used"]].fillna(0).tolist()]
+    valid_data = [data[data['split'] == 1][features].fillna(0).values.tolist(), data[data['split'] == 1][CFG["target_used"]].fillna(0).tolist()]
+    test_data = [data[data['split'] == 2][features].fillna(0).values.tolist(), data[data['split'] == 2][CFG["target_used"]].fillna(0).tolist()]
 
     # valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
     # test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
+
+    # Train MinMaxScaler on data if it will be used in normalizer
+    if 'minmax' in normalizers:
+        scalers = calculate_scalers(normalizers=normalizers, features=features, train_data=train_data)
     
-    valid_rewards, valid_profit, valid_actions, valid_account_values = test_fn(model, valid_data, CFG['window_size'])
-    test_rewards,  test_profit,  test_actions, test_account_values  = test_fn(model, test_data,  CFG['window_size'])
+    valid_rewards, valid_profit, valid_actions, valid_account_values = test_fn(model, valid_data, CFG['window_size'], scalers)
+    test_rewards,  test_profit,  test_actions, test_account_values  = test_fn(model, test_data,  CFG['window_size'], scalers)
     print(f"Finished with valid_profit = {valid_profit} and test_profit = {test_profit}")
 
     pyfolio_backtesting(valid_account_values, valid_df, data_type="validation")

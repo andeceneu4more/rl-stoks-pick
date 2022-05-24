@@ -37,10 +37,25 @@ DEVICE  = torch.device('cuda:0') if torch.cuda.is_available() else torch.device(
 RD      = lambda x: np.round(x, 3)
 sigmoid = lambda x: 1 / (1 + np.exp(-x))
 
-STAGE   = 1         # if we change the structure of the GlobalLogger.csv we increase the stage number
+STAGE   = 0         # if we change the structure of the GlobalLogger.csv we increase the stage number
 USER    = "andreig"
 
 seed_everything(seed = SEED)
+
+def calculate_scalers(normalizers, features, train_data):
+    from sklearn.preprocessing import MinMaxScaler
+
+    scalers = {}
+
+    for idx, elem in enumerate(normalizers):
+        if elem == 'minmax':
+            scaler = MinMaxScaler()
+            scaler.fit(np.array(train_data[0])[:, idx].reshape(-1, 1))
+
+            scalers[features[idx]] = scaler
+            # print(np.array(train_data[0])[:, idx])
+
+    return scalers
 
 def normalize_features(current_day: list, next_day: list, config_file, scalers):
     # assert normalizers in \
