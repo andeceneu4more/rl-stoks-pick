@@ -200,13 +200,23 @@ GLOBAL_LOGGER = GlobalLogger(
 
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
+
     "trader"        : "DQNFixedTargets",
     "estimator"     : "BaseEstimator",
 
-    "features_used" : ["adj_close", "rsi"],
+    "features_used" : {
+        # the key represents the feature, the value represents the normalizer used for that feature
+        "adj_close": "percent",        
+        "close_delta": "minmax", 
+        "atr_13": "minmax", 
+        "stochrsi_6": "minmax", 
+        "rsv_6": "minmax", 
+        "middle_10_trix": "minmax", 
+        "high_5_sma": "minmax", 
+        "high_5_mstd": "minmax", 
+        "high_5_mvar": "minmax"
+    },
     "target_used"   : "adj_close",
-
-    "normalizer"    : ["sigmoid", "minmax"], # same ln as "features_used"; each feature with its normalizer
     
     "optimizer"     : "AdamW",
     "learning_rate" : 0.001,
@@ -220,8 +230,8 @@ CFG = {
 
     "action_space"  : 3,
     "window_size"   : 10,                       # the same thing as state_size
-    "batch_size"    : 32,
-    "n_episodes"    : 1,
+    "batch_size"    : 128,
+    "n_episodes"    : 200,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -360,20 +370,24 @@ def main():
     data       = pd.read_csv(PATH_TO_DATA)
     data      = wrap(data)
 
-    train_data = [data[data['split'] == 0][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 0][CFG["target_used"]].fillna(0).tolist()]
-    valid_data = [data[data['split'] == 1][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 1][CFG["target_used"]].fillna(0).tolist()]
-    test_data = [data[data['split'] == 2][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 2][CFG["target_used"]].fillna(0).tolist()]
+    features = list(CFG["features_used"].keys())
+    normalizers = list(CFG["features_used"].values())
+
+    train_data = [data[data['split'] == 0][features].fillna(0).values.tolist(), data[data['split'] == 0][CFG["target_used"]].fillna(0).tolist()]
+    valid_data = [data[data['split'] == 1][features].fillna(0).values.tolist(), data[data['split'] == 1][CFG["target_used"]].fillna(0).tolist()]
+    test_data = [data[data['split'] == 2][features].fillna(0).values.tolist(), data[data['split'] == 2][CFG["target_used"]].fillna(0).tolist()]
 
     # Train MinMaxScaler on data if it will be used in normalizer
-    if 'minmax' in CFG['normalizer']:
+    
+    if 'minmax' in normalizers:
         from sklearn.preprocessing import MinMaxScaler
 
-        for idx, elem in enumerate(CFG['normalizer']):
+        for idx, elem in enumerate(normalizers):
             if elem == 'minmax':
                 scaler = MinMaxScaler()
                 scaler.fit(np.array(train_data[0])[:, idx].reshape(-1, 1))
 
-                SCALERS[CFG["features_used"][idx]] = scaler
+                SCALERS[features[idx]] = scaler
                 # print(np.array(train_data[0])[:, idx])
 
 

@@ -37,26 +37,29 @@ DEVICE  = torch.device('cuda:0') if torch.cuda.is_available() else torch.device(
 RD      = lambda x: np.round(x, 3)
 sigmoid = lambda x: 1 / (1 + np.exp(-x))
 
-STAGE   = 0         # if we change the structure of the GlobalLogger.csv we increase the stage number
+STAGE   = 1         # if we change the structure of the GlobalLogger.csv we increase the stage number
 USER    = "andreig"
 
 seed_everything(seed = SEED)
 
 def normalize_features(current_day: list, next_day: list, config_file, scalers):
-    # assert config_file["normalizer"] in \
+    # assert normalizers in \
     #     ["sigmoid", "percent", "minmax"], "[normalizer] -> Option Not Implemented"
+
+    features = list(config_file["features_used"].keys())
+    normalizers = list(config_file["features_used"].values())
 
     normalized_features = []
     for i in range(len(current_day)):
-        if config_file["normalizer"][i] == "sigmoid":
+        if normalizers[i] == "sigmoid":
             normalized_feature = sigmoid(next_day[i] - current_day[i])
-        elif config_file["normalizer"][i] == "percent":
+        elif normalizers[i] == "percent":
             try:
                 normalized_feature = next_day[i] - current_day[i] / current_day[i]
             except ZeroDivisionError:
                 normalized_feature = next_day[i] - current_day[i]
-        elif config_file["normalizer"][i] == "minmax":
-            scaler = scalers[config_file["features_used"][i]]
+        elif normalizers[i] == "minmax":
+            scaler = scalers[features[i]]
             normalized_feature = scaler.transform([[next_day[i] - current_day[i]]]).squeeze(0).squeeze(0)
 
         normalized_features.append(normalized_feature)

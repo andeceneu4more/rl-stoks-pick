@@ -140,8 +140,10 @@ if __name__ == "__main__":
 
     data      = wrap(data)
 
-    valid_data = [data[data['split'] == 1][CFG["features_used"]].values.tolist(), data[data['split'] == 1][CFG["target_used"]].tolist()]
-    test_data = [data[data['split'] == 2][CFG["features_used"]].values.tolist(), data[data['split'] == 2][CFG["target_used"]].tolist()]
+    features = list(CFG["features_used"].keys())
+    
+    valid_data = [data[data['split'] == 1][features].values.tolist(), data[data['split'] == 1][CFG["target_used"]].tolist()]
+    test_data = [data[data['split'] == 2][features].values.tolist(), data[data['split'] == 2][CFG["target_used"]].tolist()]
 
     # valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
     # test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
