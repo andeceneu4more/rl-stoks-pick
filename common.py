@@ -37,8 +37,8 @@ DEVICE  = torch.device('cuda:0') if torch.cuda.is_available() else torch.device(
 RD      = lambda x: np.round(x, 3)
 sigmoid = lambda x: 1 / (1 + np.exp(-x))
 
-STAGE   = 0         # if we change the structure of the GlobalLogger.csv we increase the stage number
-USER    = "andreig"
+STAGE   = 1         # if we change the structure of the GlobalLogger.csv we increase the stage number
+USER    = "adrian"
 
 seed_everything(seed = SEED)
 
