@@ -200,13 +200,15 @@ GLOBAL_LOGGER = GlobalLogger(
 
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
-    "trader"        : "DQNFixedTargets",
+
+    "trader"        : "DQNVanilla",
     "estimator"     : "BaseEstimator",
 
-    "features_used" : ["adj_close", "rsi"],
+    "features_used" : {
+        # the key represents the feature, the value represents the normalizer (sigmoid, percent, minmax) used for that feature
+        "adj_close": "sigmoid"
+    },
     "target_used"   : "adj_close",
-
-    "normalizer"    : ["sigmoid", "minmax"], # same ln as "features_used"; each feature with its normalizer
     
     "optimizer"     : "AdamW",
     "learning_rate" : 0.001,
@@ -216,12 +218,12 @@ CFG = {
     "eps_scheduler" : "EpsilonScheduler",
     "epsilon"       : 1,
     "epsilon_final" : 0.01,
-    "epsilon_decay" : 0.995,
+    "epsilon_decay" : 0.99,
 
     "action_space"  : 3,
-    "window_size"   : 10,                       # the same thing as state_size
+    "window_size"   : 15,                       # the same thing as state_size
     "batch_size"    : 32,
-    "n_episodes"    : 1,
+    "n_episodes"    : 1000,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -240,11 +242,7 @@ OUTPUTS = {
     "observation" : "Use all features from features_used field" # This field should be used as a comment in GloablLogger.csv
 }
 
-SCALERS = {
-
-}
-
-def state_creator(data, timestep, window_size):
+def state_creator(data, timestep, window_size, scalers):
     """ Generating Features for the estimators """
     starting_id = timestep - window_size + 1
 
@@ -257,11 +255,11 @@ def state_creator(data, timestep, window_size):
     
     state = []
     for i in range(len(windowed_data) - 1):
-        state.append(normalize_features(windowed_data[i + 1], windowed_data[i], CFG, SCALERS))
+        state.append(normalize_features(windowed_data[i + 1], windowed_data[i], CFG, scalers))
 
     return np.array([state])
 
-def train_fn(trader, train_data, window_size, global_step, batch_size, sync_target):
+def train_fn(trader, train_data, window_size, global_step, batch_size, sync_target, scalers):
     train_profit = 0
     trader.portfolio, train_rewards = [], []    
 
@@ -275,7 +273,7 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
 
         # Generate the current state to be predicted, 
         # [states] variable represents the input features for DNN to determine the action
-        state  = state_creator(state_creator_param, timestep, window_size + 1)
+        state  = state_creator(state_creator_param, timestep, window_size + 1, scalers)
 
         action = trader.trade(state)
         reward = 0
@@ -294,7 +292,7 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
         # The penultimate element is the last valid one 
         # Because we need one more sliding window after as the next state for prediction
         done = timestep == len(state_creator_param) - 2
-        next_state = state_creator(state_creator_param, timestep + 1, window_size + 1)
+        next_state = state_creator(state_creator_param, timestep + 1, window_size + 1, scalers)
         trader.append_state((state, action, reward, next_state, done))
         train_rewards.append(reward)
 
@@ -316,7 +314,7 @@ def train_fn(trader, train_data, window_size, global_step, batch_size, sync_targ
 
     return trader, np.mean(train_rewards), train_profit, global_step
 
-def valid_fn(trader, valid_data, window_size):
+def valid_fn(trader, valid_data, window_size, scalers):
     valid_profit = 0
     trader.portfolio, valid_rewards = [], []    
 
@@ -324,7 +322,7 @@ def valid_fn(trader, valid_data, window_size):
     features, stock_prices = valid_data[0], valid_data[1]
     state_creator_param = features
     for timestep, current_stock_price in enumerate(stock_prices):
-        state  = state_creator(state_creator_param, timestep, window_size + 1)    
+        state  = state_creator(state_creator_param, timestep, window_size + 1, scalers)    
         action = trader.model_predict(state)
         reward = 0
 
@@ -360,22 +358,17 @@ def main():
     data       = pd.read_csv(PATH_TO_DATA)
     data      = wrap(data)
 
-    train_data = [data[data['split'] == 0][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 0][CFG["target_used"]].fillna(0).tolist()]
-    valid_data = [data[data['split'] == 1][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 1][CFG["target_used"]].fillna(0).tolist()]
-    test_data = [data[data['split'] == 2][CFG["features_used"]].fillna(0).values.tolist(), data[data['split'] == 2][CFG["target_used"]].fillna(0).tolist()]
+    features = list(CFG["features_used"].keys())
+    normalizers = list(CFG["features_used"].values())
 
+    train_data = [data[data['split'] == 0][features].fillna(0).values.tolist(), data[data['split'] == 0][CFG["target_used"]].fillna(0).tolist()]
+    valid_data = [data[data['split'] == 1][features].fillna(0).values.tolist(), data[data['split'] == 1][CFG["target_used"]].fillna(0).tolist()]
+    test_data = [data[data['split'] == 2][features].fillna(0).values.tolist(), data[data['split'] == 2][CFG["target_used"]].fillna(0).tolist()]
+
+    scalers = None
     # Train MinMaxScaler on data if it will be used in normalizer
-    if 'minmax' in CFG['normalizer']:
-        from sklearn.preprocessing import MinMaxScaler
-
-        for idx, elem in enumerate(CFG['normalizer']):
-            if elem == 'minmax':
-                scaler = MinMaxScaler()
-                scaler.fit(np.array(train_data[0])[:, idx].reshape(-1, 1))
-
-                SCALERS[CFG["features_used"][idx]] = scaler
-                # print(np.array(train_data[0])[:, idx])
-
+    if 'minmax' in normalizers:
+        scalers = calculate_scalers(normalizers=normalizers, features=features, train_data=train_data)
 
     # valid_data = data[data['split'] == 1][["adj_close"]].values.tolist()
     # test_data  = data[data['split'] == 2][["adj_close"]].values.tolist()
@@ -467,11 +460,12 @@ def main():
             window_size = CFG['window_size'], 
             global_step = global_step, 
             batch_size  = CFG['batch_size'], 
-            sync_target = CFG['sync_steps']
+            sync_target = CFG['sync_steps'],
+            scalers     = scalers
         )
 
         # One valid iteration over the validation set
-        valid_reward, valid_profit = valid_fn(trader, valid_data, CFG['window_size'])
+        valid_reward, valid_profit = valid_fn(trader, valid_data, CFG['window_size'], scalers=scalers)
 
         # Saving the best model based on the reward on the validation set
         if best_mean_reward < valid_reward:
