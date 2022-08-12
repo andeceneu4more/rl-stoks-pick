@@ -1,4 +1,5 @@
-# Trading with Reinforcement Learning (based on [tutorial](https://www.mlq.ai/deep-reinforcement-learning-for-trading-with-tensorflow-2-0/))
+# Trading with Reinforcement Learning 
+### Improving the solution initially proposed [here](https://www.mlq.ai/deep-reinforcement-learning-for-trading-with-tensorflow-2-0/)
 
 In trading we have an action space of 3: Buy, Sell, and Sit
 
