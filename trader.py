@@ -201,29 +201,29 @@ GLOBAL_LOGGER = GlobalLogger(
 CFG = {
     "id"            : GLOBAL_LOGGER.get_version_id(),
 
-    "trader"        : "DQNFixedTargets",
+    "trader"        : "DQNVanilla",
     "estimator"     : "BaseEstimator",
 
     "features_used" : {
         # the key represents the feature, the value represents the normalizer (sigmoid, percent, minmax) used for that feature
-        "adj_close": "minmax"
+        "adj_close": "sigmoid"
     },
     "target_used"   : "adj_close",
     
     "optimizer"     : "AdamW",
-    "learning_rate" : 5e-2,
+    "learning_rate" : 0.001,
     
     "criterion"     : "MSELoss",
 
     "eps_scheduler" : "EpsilonScheduler",
     "epsilon"       : 1,
     "epsilon_final" : 0.01,
-    "epsilon_decay" : 0.995,
+    "epsilon_decay" : 0.99,
 
     "action_space"  : 3,
-    "window_size"   : 10,                       # the same thing as state_size
-    "batch_size"    : 128,
-    "n_episodes"    : 100,
+    "window_size"   : 15,                       # the same thing as state_size
+    "batch_size"    : 32,
+    "n_episodes"    : 1000,
 
     "replay_size"   : 1000,
     "sync_steps"    : 1000,                     # only for DQN with fixed targets
@@ -365,6 +365,7 @@ def main():
     valid_data = [data[data['split'] == 1][features].fillna(0).values.tolist(), data[data['split'] == 1][CFG["target_used"]].fillna(0).tolist()]
     test_data = [data[data['split'] == 2][features].fillna(0).values.tolist(), data[data['split'] == 2][CFG["target_used"]].fillna(0).tolist()]
 
+    scalers = None
     # Train MinMaxScaler on data if it will be used in normalizer
     if 'minmax' in normalizers:
         scalers = calculate_scalers(normalizers=normalizers, features=features, train_data=train_data)

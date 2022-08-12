@@ -7,7 +7,7 @@ def test_fn(model, test_data, window_size, scalers):
     portfolio, rewards, account_values = [], [], []
     actions = []
 
-    account_value = 10 ** 6
+    account_value = 1000
 
     # for timestep, current_stock_price in enumerate(test_data):
     features, stock_prices = test_data[0], test_data[1]
@@ -117,7 +117,7 @@ def pyfolio_backtesting(profits, df_original, data_type = "validation"):
 if __name__ == "__main__":
     # STAGE = 0
     # USER  = "andreig"
-    MODEL   = 6
+    MODEL   = 2
 
     model = get_estimator(CFG)
 
@@ -150,6 +150,7 @@ if __name__ == "__main__":
     # valid_data = data[data['Split'] == 1]["Adj_Close"].tolist()
     # test_data  = data[data['Split'] == 2]["Adj_Close"].tolist()
 
+    scalers = None
     # Train MinMaxScaler on data if it will be used in normalizer
     if 'minmax' in normalizers:
         scalers = calculate_scalers(normalizers=normalizers, features=features, train_data=train_data)
